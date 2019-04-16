@@ -2,23 +2,101 @@
 title: WebShopAPI
 version: v1
 baseUri: http://api.samplehost.com
-types:
-  TestType:
-    type: object
-    properties:
-      id: number
-      optional?: string
-      expanded:
-        type: object
-        properties:
-          count: number
-/helloWorld:
+
+#types:
+#  TestType:
+#    type: object
+#    properties:
+#      id: number
+#      optional?: string
+#      expanded:
+#        type: object
+#        properties:
+#          count: number
+
+/users:
   get:
+  post:
+  /{user_id}
+    get:
+    put:
+#    delete:
+/categories:
+  get:
+  post:
+  /{category_id}:
+    get:
+    put:
+      access_token:
+        displayName: Access Token
+        type: string
+        description: Token giving you permission to make call
+        required: true
+    delete:
+      access_token:
+        displayName: Access Token
+        type: string
+        description: Token giving you permission to make call
+        required: true
+/products:
+  get:
+    gueryParameters:
+      text:
+        displayName: Query Text
+        type: string
+        description: The text to search the product names and descriptions for
+        example: MacBook
+        required: false
+      price:
+        displayName: Product Price
+        type: number
+        example: 2.5
+        required: false
+      category:
+        displayName: Product Category
+        type: string
+        example: electronics
+        required: false
+    description: Retrieve a list of products
     responses:
       200:
         body:
           application/json:
             example: |
               {
-                "message" : "Hello World"
+                "products": [
+                  {
+                    "id": "1",
+                    "name": "MacBook Air",
+                    "price": 1099.0,
+                    "details": "A light laptop from Apple.",
+                    "category": "electronics"
+                  }
+                ]
               }
+  post:
+  /{product_id}:
+    get:
+    put:
+      access_token:
+        displayName: Access Token
+        type: string
+        description: Token giving you permission to make call
+        required: true
+    delete:
+      access_token:
+        displayName: Access Token
+        type: string
+        description: Token giving you permission to make call
+        required: true
+
+#/helloWorld:
+#  get:
+#    responses:
+#      200:
+#        body:
+#          application/json:
+#            example: |
+#              {
+#                "message" : "Hello World"
+#              }
