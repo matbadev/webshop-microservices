@@ -1,34 +1,7 @@
 #%RAML 1.0
-title: WebShopAPI
+title: WebShop Products Service
 version: v1
-baseUri: http://api.samplehost.com
-
-#types:
-#  TestType:
-#    type: object
-#    properties:
-#      id: number
-#      optional?: string
-#      expanded:
-#        type: object
-#        properties:
-#          count: number
-
-/users:
-  get:
-  post:
-  /{user_id}:
-    get:
-    put:
-#    delete:
-
-/categories:
-  get:
-  post:
-  /{category_id}:
-    get:
-    put:
-    delete:
+baseUri:
 
 /products:
   get:
@@ -67,7 +40,7 @@ baseUri: http://api.samplehost.com
                 ]
               }
   post:
-  /{product_id}:
+  /{productId}:
     get:
     put:
     delete:
