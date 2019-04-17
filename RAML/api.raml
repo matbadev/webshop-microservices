@@ -17,30 +17,22 @@ baseUri: http://api.samplehost.com
 /users:
   get:
   post:
-  /{user_id}
+  /{user_id}:
     get:
     put:
 #    delete:
+
 /categories:
   get:
   post:
   /{category_id}:
     get:
     put:
-      access_token:
-        displayName: Access Token
-        type: string
-        description: Token giving you permission to make call
-        required: true
     delete:
-      access_token:
-        displayName: Access Token
-        type: string
-        description: Token giving you permission to make call
-        required: true
+
 /products:
   get:
-    gueryParameters:
+    queryParameters:
       text:
         displayName: Query Text
         type: string
@@ -78,25 +70,9 @@ baseUri: http://api.samplehost.com
   /{product_id}:
     get:
     put:
-      access_token:
-        displayName: Access Token
-        type: string
-        description: Token giving you permission to make call
-        required: true
     delete:
-      access_token:
-        displayName: Access Token
-        type: string
-        description: Token giving you permission to make call
-        required: true
-
-#/helloWorld:
-#  get:
-#    responses:
-#      200:
-#        body:
-#          application/json:
-#            example: |
-#              {
-#                "message" : "Hello World"
-#              }
+#      access_token:
+#        displayName: Access Token
+#        type: string
+#        description: Token giving you permission to make call
+#        required: true
