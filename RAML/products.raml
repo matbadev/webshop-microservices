@@ -8,7 +8,24 @@ uses:
 
 /products:
   get:
-    description: Get all products
+    description: Search for products (or get them all of no parameters given)
+    queryParameters:
+      text:
+        displayName: Query text
+        type: string
+        description: The text to search the product names and descriptions for
+        example: MacBook
+        required: false
+      minPrice:
+        displayName: Minimum product price
+        type: number
+        example: 1099.0
+        required: false
+      maxPrice:
+        displayName: Maximum product price
+        type: number
+        example: 1099.0
+        required: false
     responses:
       200:
         body:
@@ -84,42 +101,3 @@ uses:
       responses:
         204:
         404:
-
-  /search:
-    get:
-      description: Search for products
-      queryParameters:
-        text:
-          displayName: Query text
-          type: string
-          description: The text to search the product names and descriptions for
-          example: MacBook
-          required: false
-        minPrice:
-          displayName: Minimum product price
-          type: number
-          example: 1099.0
-          required: false
-        maxPrice:
-          displayName: Maximum product price
-          type: number
-          example: 1099.0
-          required: false
-      responses:
-        200:
-          body:
-            application/json:
-              type: library.Product[]
-              example: |
-              [
-                {
-                  "id": 1,
-                  "name": "MacBook Air",
-                  "price": 1099.0,
-                  "details": "A light laptop from Apple.",
-                  "category": {
-                    "id": 1,
-                    "name": "electronics"
-                    }
-                }
-              ]
