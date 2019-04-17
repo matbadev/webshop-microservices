@@ -13,18 +13,21 @@ uses:
       200:
         body:
           application/json:
+            type: library.Product[]
             example: |
-              {
-                "products": [
-                  {
-                    "id": "1",
-                    "name": "MacBook Air",
-                    "price": 1099.0,
-                    "details": "A light laptop from Apple.",
-                    "category": "electronics"
+              [
+                {
+                  "id": 1,
+                  "name": "MacBook Air",
+                  "price": 1099.0,
+                  "details": "A light laptop from Apple.",
+                  "category": {
+                    "id": 1,
+                    "name": "electronics"
                   }
-                ]
-              }
+                }
+              ]
+
   post:
   /{productId}:
     get:
