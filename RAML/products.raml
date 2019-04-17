@@ -8,35 +8,110 @@ uses:
 
 /products:
   get:
-    description: Retrieve the list of products
+    description: Get all products
     responses:
       200:
         body:
           application/json:
             type: library.Product[]
             example: |
-              [
-                {
+            [
+              {
+                "id": 1,
+                "name": "MacBook Air",
+                "price": 1099.0,
+                "details": "A light laptop from Apple.",
+                "category": {
                   "id": 1,
-                  "name": "MacBook Air",
-                  "price": 1099.0,
-                  "details": "A light laptop from Apple.",
-                  "category": {
-                    "id": 1,
-                    "name": "electronics"
-                  }
+                  "name": "electronics"
                 }
-              ]
+              }
+            ]
 
-  post:
   /{productId}:
     get:
+      description: Get product by ID
       responses:
         200:
           body:
             application/json:
               type: library.Product
               example: |
+              {
+                "id": 1,
+                "name": "MacBook Air",
+                "price": 1099.0,
+                "details": "A light laptop from Apple.",
+                "category": {
+                  "id": 1,
+                  "name": "electronics"
+                }
+              }
+        404:
+
+    post:
+      description: Create a new product
+      body:
+        application/json:
+          type: library.NewProduct
+          example: |
+          {
+            "name": "MacBook Air",
+            "price": 1099.0,
+            "details": "A light laptop from Apple.",
+            "category": "electronics"
+          }
+      responses:
+        201:
+          body:
+            application/json:
+              type: library.Product
+              example: |
+              {
+                "id": 1,
+                "name": "MacBook Air",
+                "price": 1099.0,
+                "details": "A light laptop from Apple.",
+                "category": {
+                  "id": 1,
+                  "name": "electronics"
+                }
+              }
+        400:
+
+    delete:
+      description: Delete product by ID
+      responses:
+        204:
+        404:
+
+  /search:
+    get:
+      description: Search for products
+      queryParameters:
+        text:
+          displayName: Query text
+          type: string
+          description: The text to search the product names and descriptions for
+          example: MacBook
+          required: false
+        minPrice:
+          displayName: Minimum product price
+          type: number
+          example: 1099.0
+          required: false
+        maxPrice:
+          displayName: Maximum product price
+          type: number
+          example: 1099.0
+          required: false
+      responses:
+        200:
+          body:
+            application/json:
+              type: library.Product[]
+              example: |
+              [
                 {
                   "id": 1,
                   "name": "MacBook Air",
@@ -47,47 +122,4 @@ uses:
                     "name": "electronics"
                     }
                 }
-        204:
-    delete:
-#      access_token:
-#        displayName: Access Token
-#        type: string
-#        description: Token giving you permission to make call
-#        required: true
-  /search:
-    get:
-      queryParameters:
-        text:
-          displayName: Query Text
-          type: string
-          description: The text to search the product names and descriptions for
-          example: MacBook
-          required: false
-        price:
-          displayName: Product Price
-          type: number
-          example: 1099.0
-          required: false
-        category:
-          displayName: Product Category
-          type: string
-          example: electronics
-          required: false
-      responses:
-        200:
-          body:
-            application/json:
-              type: library.Product[]
-              example: |
-                [
-                  {
-                    "id": 1,
-                    "name": "MacBook Air",
-                    "price": 1099.0,
-                    "details": "A light laptop from Apple.",
-                    "category": {
-                      "id": 1,
-                      "name": "electronics"
-                      }
-                  }
-                ]
+              ]

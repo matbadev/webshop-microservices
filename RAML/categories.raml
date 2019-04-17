@@ -3,10 +3,67 @@ title: WebShop Category Service
 version: v1
 baseUri:
 
+uses:
+  library: types.raml
+
 /categories:
   get:
+    description: Get all categories
+    responses:
+      200:
+        body:
+          application/json:
+            type: library.Category[]
+            example: |
+            [
+              {
+                "id": 1,
+                "name": "electronics"
+              },
+              {
+                "id": 2,
+                "name": "other"
+              }
+            ]
+
   post:
+    description: Create a new category
+    body:
+      application/json:
+        type: library.NewCategory
+        example: |
+        {
+          "name": "electronics"
+        }
+    responses:
+      201:
+        body:
+          application/json:
+            type: library.Category
+            example: |
+            {
+              "id": 1,
+              "name": "electronics"
+            }
+      400:
+
   /{categoryId}:
     get:
-    put:
+      description: Get category by ID
+      responses:
+        200:
+          body:
+            application/json:
+              type: library.Category
+              example: |
+              {
+                "id": 1,
+                "name": "electronics"
+              }
+        404:
+
     delete:
+      description: Delete a category by ID
+      responses:
+        204:
+        404:

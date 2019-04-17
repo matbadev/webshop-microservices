@@ -1,5 +1,4 @@
 #%RAML 1.0 Library
-
 types:
   Role:
     type: object
@@ -13,6 +12,7 @@ types:
       level:
         type: integer
         required: true
+
   User:
     type: object
     properties:
@@ -45,6 +45,13 @@ types:
         type: string
         required: true
 
+  NewCategory:
+    type: object
+    properties:
+      name:
+        type: string
+        required: true
+
   Product:
     type: object
     properties:
@@ -64,3 +71,18 @@ types:
         type: Category
         required: true
 
+  NewProduct:
+    type: object
+    properties:
+      name:
+        type: string
+        required: true
+      price:
+        type: number
+        required: true
+      details:
+        type: string
+        required: true
+      category:
+        type: string
+        required: true
