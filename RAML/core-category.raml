@@ -1,0 +1,89 @@
+#%RAML 1.0
+title: WebShop Category Core
+version: v1
+baseUri:
+
+types:
+  Category:
+    type: object
+    properties:
+      id:
+        type: integer
+        required: true
+      name:
+        type: string
+        required: true
+
+  NewCategory:
+    type: object
+    properties:
+      name:
+        type: string
+        required: true
+
+/categories:
+  get:
+    description: Get all categories
+    responses:
+      200:
+        body:
+          application/json:
+            type: Category[]
+            example: |
+              [
+                {
+                  "id": 1,
+                  "name": "electronics"
+                },
+                {
+                  "id": 2,
+                  "name": "other"
+                }
+              ]
+
+  post:
+    description: Create a new category
+    body:
+      application/json:
+        type: NewCategory
+        example: |
+          {
+            "name": "electronics"
+          }
+    responses:
+      201:
+        body:
+          application/json:
+            type: Category
+            example: |
+              {
+                "id": 1,
+                "name": "electronics"
+              }
+      400:
+
+  /{categoryId}:
+    description: The specific category
+    uriParameters:
+      categoryId:
+        description: The category ID
+        type: integer
+    get:
+      description: Get category by ID
+      responses:
+        200:
+          body:
+            application/json:
+              type: Category
+              example: |
+                {
+                  "id": 1,
+                  "name": "electronics"
+                }
+        404:
+
+    delete:
+      description: Delete a category by ID
+      responses:
+        204:
+        404:

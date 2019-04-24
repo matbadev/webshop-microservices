@@ -1,0 +1,225 @@
+#%RAML 1.0
+title: WebShop Inventory API
+version: v1
+baseUri:
+
+types:
+  Category:
+    type: object
+    properties:
+      id:
+        type: integer
+        required: true
+      name:
+        type: string
+        required: true
+
+  NewCategory:
+    type: object
+    properties:
+      name:
+        type: string
+        required: true
+
+  Product:
+    type: object
+    properties:
+      id:
+        type: integer
+        required: true
+      name:
+        type: string
+        required: true
+      price:
+        type: number
+        required: true
+      details:
+        type: string
+        required: true
+      category:
+        type: Category
+        required: true
+
+  NewProduct:
+    type: object
+    properties:
+      name:
+        type: string
+        required: true
+      price:
+        type: number
+        required: true
+      details:
+        type: string
+        required: true
+      category:
+        type: string
+        required: true
+
+/products:
+  get:
+    description: Search for products (or get them all of no parameters given)
+    queryParameters:
+      text:
+        displayName: Query text
+        type: string
+        description: The text to search the product names and descriptions for
+        example: MacBook
+        required: false
+      minPrice:
+        displayName: Minimum product price
+        type: number
+        example: 1099.0
+        required: false
+      maxPrice:
+        displayName: Maximum product price
+        type: number
+        example: 1099.0
+        required: false
+    responses:
+      200:
+        body:
+          application/json:
+            type: Product[]
+            example: |
+              [
+                {
+                  "id": 1,
+                  "name": "MacBook Air",
+                  "price": 1099.0,
+                  "details": "A light laptop from Apple.",
+                  "category": {
+                    "id": 1,
+                    "name": "electronics"
+                  }
+                }
+              ]
+
+  post:
+    description: Create a new product
+    body:
+      application/json:
+        type: NewProduct
+        example: |
+          {
+            "name": "MacBook Air",
+            "price": 1099.0,
+            "details": "A light laptop from Apple.",
+            "category": "electronics"
+          }
+    responses:
+      201:
+        body:
+          application/json:
+            type: Product
+            example: |
+              {
+                "id": 1,
+                "name": "MacBook Air",
+                "price": 1099.0,
+                "details": "A light laptop from Apple.",
+                "category": {
+                  "id": 1,
+                  "name": "electronics"
+                }
+              }
+      400:
+
+  /{productId}:
+    description: The specific product
+    uriParameters:
+      productId:
+        description: The product ID
+        type: integer
+    get:
+      description: Get product by ID
+      responses:
+        200:
+          body:
+            application/json:
+              type: Product
+              example: |
+                {
+                  "id": 1,
+                  "name": "MacBook Air",
+                  "price": 1099.0,
+                  "details": "A light laptop from Apple.",
+                  "category": {
+                    "id": 1,
+                    "name": "electronics"
+                  }
+                }
+        404:
+
+    delete:
+      description: Delete product by ID
+      responses:
+        204:
+        404:
+
+/categories:
+  get:
+    description: Get all categories
+    responses:
+      200:
+        body:
+          application/json:
+            type: Category[]
+            example: |
+              [
+                {
+                  "id": 1,
+                  "name": "electronics"
+                },
+                {
+                  "id": 2,
+                  "name": "other"
+                }
+              ]
+
+  post:
+    description: Create a new category
+    body:
+      application/json:
+        type: NewCategory
+        example: |
+          {
+            "name": "electronics"
+          }
+    responses:
+      201:
+        body:
+          application/json:
+            type: Category
+            example: |
+              {
+                "id": 1,
+                "name": "electronics"
+              }
+      400:
+
+  /{categoryId}:
+    description: The specific category
+    uriParameters:
+      categoryId:
+        description: The category ID
+        type: integer
+    get:
+      description: Get category by ID
+      responses:
+        200:
+          body:
+            application/json:
+              type: Category
+              example: |
+                {
+                  "id": 1,
+                  "name": "electronics"
+                }
+        404:
+
+    delete:
+      description: Delete a category by ID
+      responses:
+        204:
+        404:
