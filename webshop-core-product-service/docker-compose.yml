@@ -10,9 +10,9 @@ services:
             MYSQL_DATABASE: productdb
             MYSQL_USER: webshopuser
             MYSQL_PASSWORD: c0ffeebabe
-        ports:
+        #ports:
             # <Port exposed> : < MySQL Port running inside container>
-            - '3306:3306'
+        #    - '3306:3306'
         expose:
             # Opens port 3306 on the container
             - '3306'
