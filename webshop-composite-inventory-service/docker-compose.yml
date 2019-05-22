@@ -1,0 +1,16 @@
+version: '3.3'
+
+services:
+    inventoryservice:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        ports:
+          - '8888:8080'
+        networks:
+          - ps-network
+
+networks:
+    ps-network:
+        driver: bridge
+
