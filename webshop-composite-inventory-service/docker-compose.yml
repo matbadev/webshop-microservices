@@ -6,11 +6,12 @@ services:
             context: .
             dockerfile: Dockerfile
         ports:
-          - '8888:8080'
+          - '8889:8080'
         networks:
-          - ps-network
+          - webshop-core-product-service_ps-network
+        restart: on-failure
 
 networks:
-    ps-network:
-        driver: bridge
+    webshop-core-product-service_ps-network:
+        external: true
 
