@@ -2,12 +2,10 @@ package de.hska.iwi.vslab.webshopcompositeinventoryservice;
 
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -53,16 +51,7 @@ public class InventoryController {
         );
         List<ProductDto> incompleteProducts = responseProd.getBody();
 
-        // same bulky statement for the categories
-        ResponseEntity<List<Category>> responseCat = restTemplate.exchange(
-                categoriesUrl,
-                HttpMethod.GET,
-                null,
-                new ParameterizedTypeReference<List<Category>>() {
-                }
-        );
-        List<Category> categories = responseCat.getBody();
-
+        List<Category> categories = getCategories(); // REST call
         Map<Integer, Category> categoryMap = categories
                 .stream()
                 .collect(Collectors.toMap(Category::getId, category -> category, (a, b) -> b));
@@ -87,7 +76,7 @@ public class InventoryController {
     @GetMapping(path = "/categories")
     public @ResponseBody
     List<Category> getCategories() {
-        // same as in GET /products (TODO: check if this method can be reused in getProducts())
+        // same bulky statement to get collection of categories
         return restTemplate.exchange(
                 categoriesUrl,
                 HttpMethod.GET,
@@ -95,6 +84,31 @@ public class InventoryController {
                 new ParameterizedTypeReference<List<Category>>() {
                 }
         ).getBody();
+    }
+
+    @PostMapping(path = "/categories")
+    public ResponseEntity<Void> postCategories(@RequestBody CategoryDto newCategory) {
+        return restTemplate.postForEntity(categoriesUrl, newCategory, Void.class);
+    }
+
+    @GetMapping(path = "/categories/{categoryId}")
+    public ResponseEntity<Category> getCategory(@PathVariable long categoryId) {
+        try {
+            Category category = restTemplate.getForObject(categoriesUrl + "/" + categoryId, Category.class);
+            return ResponseEntity.ok(category);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+    }
+
+    @DeleteMapping(path = "/categories/{categoryId}")
+    public ResponseEntity<Void> deleteCategory(@PathVariable long categoryId) {
+        try {
+            restTemplate.delete(categoriesUrl + "/" + categoryId);
+            return ResponseEntity.status(HttpStatus.ACCEPTED).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
     }
 
 }
