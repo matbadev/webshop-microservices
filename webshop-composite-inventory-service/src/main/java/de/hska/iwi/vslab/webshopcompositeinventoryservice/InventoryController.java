@@ -21,7 +21,7 @@ public class InventoryController {
 
     private final String productsUrl = "http://productservice:8080/products";
 
-    // TODO: richtige URL zum category Service ergänzen
+    // TODO: enter correct URL for category service
     private final String categoriesUrl = "http://categoryservice:8080/categories";
     private final RestTemplate restTemplate = new RestTemplate();
 
@@ -82,6 +82,19 @@ public class InventoryController {
                 .collect(Collectors.toList());
 
         return products;
+    }
+
+    @GetMapping(path = "/categories")
+    public @ResponseBody
+    List<Category> getCategories() {
+        // same as in GET /products (TODO: check if this method can be reused in getProducts())
+        return restTemplate.exchange(
+                categoriesUrl,
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<List<Category>>() {
+                }
+        ).getBody();
     }
 
 }
