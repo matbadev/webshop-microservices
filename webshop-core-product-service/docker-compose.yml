@@ -30,6 +30,7 @@ services:
           - ps-network
         depends_on:
           - db
+        restart: on-failure
 
 volumes:
     db_data:
