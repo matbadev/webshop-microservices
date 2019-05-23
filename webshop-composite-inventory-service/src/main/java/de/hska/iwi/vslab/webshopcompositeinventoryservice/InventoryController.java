@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
 import java.util.Map;
@@ -32,10 +33,19 @@ public class InventoryController {
 
     @GetMapping(path = "/products")
     public @ResponseBody
-    List<Product> getProducts() {
+    List<Product> getProducts(@RequestParam(required = false) String text,
+                              @RequestParam(required = false) String minPrice,
+                              @RequestParam(required = false) String maxPrice) {
+
+        // pack params into the url
+        UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromHttpUrl(productsUrl)
+                .queryParam("text", text)
+                .queryParam("minPrice", minPrice)
+                .queryParam("maxPrice", maxPrice);
+
         // bulky statement, needed to retrieve collection of products
         ResponseEntity<List<ProductDto>> responseProd = restTemplate.exchange(
-                productsUrl,
+                uriBuilder.toUriString(),
                 HttpMethod.GET,
                 null,
                 new ParameterizedTypeReference<List<ProductDto>>() {
@@ -58,7 +68,8 @@ public class InventoryController {
                 .collect(Collectors.toMap(Category::getId, category -> category, (a, b) -> b));
 
         Category defaultCategory = new Category();
-        defaultCategory.setId(-1); // TODO: change to suitable id and name
+        // TODO: change to suitable id and name
+        defaultCategory.setId(-1);
         defaultCategory.setName("DefaultCategory");
 
         List<Product> products = incompleteProducts
