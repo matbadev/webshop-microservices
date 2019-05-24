@@ -141,6 +141,17 @@ public class InventoryController {
         return ResponseEntity.ok(product);
     }
 
+    @DeleteMapping(path = "/products/{productId}")
+    public ResponseEntity<Void> deleteProduct(@PathVariable int productId) {
+        // TODO: decide if orphaned categories should be also removed
+        try {
+            restTemplate.delete(productsUrl + "/" + productId);
+            return ResponseEntity.status(HttpStatus.ACCEPTED).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
+
     @GetMapping(path = "/categories")
     public @ResponseBody
     List<Category> getCategories() {
