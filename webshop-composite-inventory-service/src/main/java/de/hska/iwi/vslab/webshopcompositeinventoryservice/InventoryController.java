@@ -24,12 +24,6 @@ public class InventoryController {
     private final String categoriesUrl = "http://categoryservice:8080/categories";
     private final RestTemplate restTemplate = new RestTemplate();
 
-    @GetMapping(path = "/hello")
-    public @ResponseBody
-    String hello(@RequestParam(defaultValue = "World") String name) {
-        return "Hello " + name;
-    }
-
     @GetMapping(path = "/products")
     public @ResponseBody
     List<Product> getProducts(@RequestParam(required = false) String text,
