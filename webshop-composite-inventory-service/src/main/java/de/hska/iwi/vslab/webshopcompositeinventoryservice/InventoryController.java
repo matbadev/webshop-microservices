@@ -11,6 +11,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Controller
@@ -73,6 +74,51 @@ public class InventoryController {
         return products;
     }
 
+    @PostMapping(path = "/products")
+    public ResponseEntity<Product> newProduct(@RequestBody ProductDto newProductDto) {
+        // REST call
+        List<Category> categories = getCategories();
+        Optional<Category> categoryOptional = categories.stream()
+                .filter(category -> category.getName().equals(newProductDto.getName()))
+                .findFirst();
+
+        Category category;
+
+        // set the category id in the dto, so that the product gets correctly created
+        if (categoryOptional.isPresent()) {
+            category = categoryOptional.get();
+            newProductDto.setCategoryId(category.getId());
+        } else {
+            // create category if it did not exist
+            CategoryDto categoryDto = new CategoryDto();
+            categoryDto.setName(newProductDto.getCategory());
+
+            // REST call
+            ResponseEntity<Category> categoryResponseEntity = postCategories(categoryDto);
+
+            if (!categoryResponseEntity.getStatusCode().equals(HttpStatus.CREATED)) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            } else {
+                category = categoryResponseEntity.getBody();
+                newProductDto.setCategoryId(category.getId());
+            }
+        }
+
+        // create the product
+        // REST call
+        ResponseEntity<Product> productResponseEntity = restTemplate.postForEntity(productsUrl, newProductDto, Product.class);
+
+        if (!productResponseEntity.getStatusCode().equals(HttpStatus.CREATED)) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+
+        // put the category object into the newly created product
+        Product product = productResponseEntity.getBody();
+        product.setCategory(category);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(product);
+    }
+
     @GetMapping(path = "/categories")
     public @ResponseBody
     List<Category> getCategories() {
@@ -87,8 +133,8 @@ public class InventoryController {
     }
 
     @PostMapping(path = "/categories")
-    public ResponseEntity<Void> postCategories(@RequestBody CategoryDto newCategory) {
-        return restTemplate.postForEntity(categoriesUrl, newCategory, Void.class);
+    public ResponseEntity<Category> postCategories(@RequestBody CategoryDto newCategory) {
+        return restTemplate.postForEntity(categoriesUrl, newCategory, Category.class);
     }
 
     @GetMapping(path = "/categories/{categoryId}")

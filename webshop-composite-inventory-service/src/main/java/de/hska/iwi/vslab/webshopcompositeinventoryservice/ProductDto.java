@@ -7,6 +7,7 @@ public class ProductDto {
     private double price;
     private String details;
     private int categoryId;
+    private String category;
 
     public int getId() {
         return id;
@@ -48,4 +49,23 @@ public class ProductDto {
         this.categoryId = categoryId;
     }
 
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
+    @Override
+    public String toString() {
+        return "ProductDto{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", price=" + price +
+                ", details='" + details + '\'' +
+                ", categoryId=" + categoryId +
+                ", category='" + category + '\'' +
+                '}';
+    }
 }
