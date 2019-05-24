@@ -119,6 +119,28 @@ public class InventoryController {
         return ResponseEntity.status(HttpStatus.CREATED).body(product);
     }
 
+    @GetMapping(path = "/products/{productId}")
+    public ResponseEntity<Product> getProduct(@PathVariable int productId) {
+        ResponseEntity<ProductDto> productDtoResponseEntity = restTemplate.getForEntity(productsUrl + "/" + productId, ProductDto.class);
+        if (!productDtoResponseEntity.getStatusCode().equals(HttpStatus.OK)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+
+        ProductDto productDto = productDtoResponseEntity.getBody();
+
+        ResponseEntity<Category> categoryResponseEntity = getCategory(productDto.getCategoryId());
+        if (!categoryResponseEntity.getStatusCode().equals(HttpStatus.OK)) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Product.fromDto(productDto));
+        }
+
+        Category category = categoryResponseEntity.getBody();
+
+        Product product = Product.fromDto(productDto);
+        product.setCategory(category);
+
+        return ResponseEntity.ok(product);
+    }
+
     @GetMapping(path = "/categories")
     public @ResponseBody
     List<Category> getCategories() {
