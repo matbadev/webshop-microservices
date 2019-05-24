@@ -26,10 +26,10 @@ public class CategoryController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> addCategory(@RequestBody NewCategoryDto category){
+    public ResponseEntity<Category> addCategory(@RequestBody NewCategoryDto category){
         try {
-            categoryRepo.save(new Category(category.getName()));
-            return ResponseEntity.status(HttpStatus.CREATED).build();
+            Category newCategory = categoryRepo.save(new Category(category.getName()));
+            return ResponseEntity.status(HttpStatus.CREATED).body(newCategory);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
