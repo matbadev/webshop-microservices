@@ -34,9 +34,13 @@ public class ProductController {
     }
 
     @PostMapping(path = "/products")
-    public @ResponseBody
-    Product newProduct(@RequestBody Product newProduct) {
-        return productRepository.save(newProduct);
+    public ResponseEntity<Product> newProduct(@RequestBody Product newProduct) {
+        try {
+            Product product = productRepository.save(newProduct);
+            return ResponseEntity.status(HttpStatus.CREATED).body(product);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
     }
 
     @GetMapping(path = "/products/{productId}")
