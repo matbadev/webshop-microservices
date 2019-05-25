@@ -1,0 +1,9 @@
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+  datasource:
+    url: jdbc:mysql://userdb:3306/user?serverTimezone=UTC&useLegacyDatetimeCode=false&useSSL=false
+    username: usercore
+    password: usercore

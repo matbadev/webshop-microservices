@@ -1,5 +1,5 @@
-HELP.md
-/target/
+/target
+/userdb_data
 !.mvn/wrapper/maven-wrapper.jar
 
 ### STS ###
