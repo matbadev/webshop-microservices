@@ -1,0 +1,17 @@
+version: '3.3'
+
+services:
+    inventoryservice:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        ports:
+          - '8889:8080'
+        networks:
+          - webshop-core-product-service_ps-network
+        restart: on-failure
+
+networks:
+    webshop-core-product-service_ps-network:
+        external: true
+
