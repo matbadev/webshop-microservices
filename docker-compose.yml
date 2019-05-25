@@ -1,6 +1,7 @@
 version: "3.7"
 
 services:
+  # Product Core Service + DB
   product_db: # Name and environment variables must match datasource configuration in application.yml
     image: mysql:5.7
     volumes:
@@ -26,6 +27,33 @@ services:
       - product_db
     restart: on-failure # Try again if database was not ready
 
+  # Category Core Service + DB
+  category_db: # Name and environment variables must match datasource configuration in application.yml
+    image: mysql:5.7
+    volumes:
+      - "./data_category:/var/lib/mysql"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: category_db
+      MYSQL_USER: categoryuser
+      MYSQL_PASSWORD: geheim
+    expose:
+      - "3306" # Opens ports locally in the docker compose network
+    networks:
+      - webshop-network
+
+  category_service:
+    build:
+      context: ./webshop-core-category-service
+    ports:
+      - "9252:8080"
+    networks:
+      - webshop-network
+    depends_on:
+      - category_db
+    restart: on-failure # Try again if database was not ready
+
+  # User Core Service + DB
   user_db: # Name and environment variables must match datasource configuration in application.yml
     image: mysql:5.7
     volumes:
@@ -54,6 +82,7 @@ services:
 volumes:
   data_products:
   data_users:
+  data_category:
 
 networks:
   webshop-network:
