@@ -1,0 +1,35 @@
+version: "3.3"
+
+services:
+  categorydb:
+    image: mysql:5.7
+    volumes:
+      - "./category_db_data:/var/lib/mysql"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: category_db
+      MYSQL_USER: categoryuser
+      MYSQL_PASSWORD: geheim
+    expose:
+      - "3306"
+    networks:
+      - ps-network
+
+  userservice:
+    build:
+      context: .
+      labels:
+        - categoryservice
+    ports:
+      - "8888:8080"
+    networks:
+      - ps-network
+    depends_on:
+      - categorydb
+
+volumes:
+  category_b_data:
+
+networks:
+  ps-network:
+    driver: bridge
