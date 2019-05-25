@@ -1,0 +1,60 @@
+version: "3.7"
+
+services:
+  product_db: # Name and environment variables must match datasource configuration in application.yml
+    image: mysql:5.7
+    volumes:
+      - "./data_products:/var/lib/mysql"
+    environment:
+      MYSQL_ROOT_PASSWORD: 1337babe
+      MYSQL_DATABASE: products
+      MYSQL_USER: webshopuser
+      MYSQL_PASSWORD: c0ffeebabe
+    expose: # Opens ports locally in the docker compose network
+      - "3306"
+    networks:
+      - webshop-network
+
+  product_service:
+    build:
+      context: ./webshop-core-product-service
+    ports:
+      - "9250:8080"
+    networks:
+      - webshop-network
+    depends_on:
+      - product_db
+    restart: on-failure # Try again if database was not ready
+
+  user_db: # Name and environment variables must match datasource configuration in application.yml
+    image: mysql:5.7
+    volumes:
+      - "./data_users:/var/lib/mysql"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: users
+      MYSQL_USER: usercore
+      MYSQL_PASSWORD: usercore
+    expose: # Opens ports locally in the docker compose network
+      - "3306"
+    networks:
+      - webshop-network
+
+  user_service:
+    build:
+      context: ./webshop-core-user-service
+    ports:
+      - "9251:8080"
+    networks:
+      - webshop-network
+    depends_on:
+      - user_db
+    restart: on-failure # Try again if database was not ready
+
+volumes:
+  data_products:
+  data_users:
+
+networks:
+  webshop-network:
+    driver: bridge

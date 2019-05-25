@@ -1,0 +1,9 @@
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+  datasource:
+    url: jdbc:mysql://product_db:3306/products?serverTimezone=UTC&useLegacyDatetimeCode=false&useSSL=false
+    username: webshopuser
+    password: c0ffeebabe
