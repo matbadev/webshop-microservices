@@ -1,20 +1,21 @@
-FROM maven:3.6.1-jdk-11 as builder
+FROM maven:3.6.1-jdk-11-slim as builder
 
-RUN mkdir -p /build
-WORKDIR /build
+ENV BUILD_DIR /build
+RUN mkdir -p $BUILD_DIR
+WORKDIR $BUILD_DIR
 
-COPY pom.xml /build
+COPY pom.xml $BUILD_DIR
 
 #Download all required dependencies into one layer
 RUN mvn -B dependency:resolve dependency:resolve-plugins
 
-COPY src /build/src
+COPY src $BUILD_DIR/src
 
 RUN mvn package -DskipTests
 
 # building done, proceeding to run the app
 
-FROM openjdk:11.0.3-jre-slim
+FROM openjdk:11-jre-slim
 EXPOSE 8080
 
 ENV APP_HOME /app
