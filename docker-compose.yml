@@ -21,8 +21,6 @@ services:
       context: ./webshop-core-product-service
     ports:
       - "9250:8080"
-    expose:
-      - "8080"
     networks:
       - webshop-network
     depends_on:
@@ -49,8 +47,6 @@ services:
       context: ./webshop-core-category-service
     ports:
       - "9252:8080"
-    expose:
-      - "8080"
     networks:
       - webshop-network
     depends_on:
@@ -104,5 +100,3 @@ volumes:
 networks:
   webshop-network:
     driver: bridge
-
-# vim: ts=2:sw=2
