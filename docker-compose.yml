@@ -34,7 +34,7 @@ services:
       - "./data_category:/var/lib/mysql"
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: category_db
+      MYSQL_DATABASE: category
       MYSQL_USER: categoryuser
       MYSQL_PASSWORD: geheim
     expose:
