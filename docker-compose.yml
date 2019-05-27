@@ -2,7 +2,7 @@ version: "3.7"
 
 services:
   # Product Core Service + DB
-  product_db: # Name and environment variables must match datasource configuration in application.yml
+  product-db: # Name and environment variables must match datasource configuration in application.yml
     image: mysql:5.7
     volumes:
       - "./data_products:/var/lib/mysql"
@@ -16,19 +16,21 @@ services:
     networks:
       - webshop-network
 
-  product_service:
+  product-service:
     build:
       context: ./webshop-core-product-service
     ports:
       - "9250:8080"
+    expose:
+      - "8080"
     networks:
       - webshop-network
     depends_on:
-      - product_db
+      - product-db
     restart: on-failure # Try again if database was not ready
 
   # Category Core Service + DB
-  category_db: # Name and environment variables must match datasource configuration in application.yml
+  category-db: # Name and environment variables must match datasource configuration in application.yml
     image: mysql:5.7
     volumes:
       - "./data_category:/var/lib/mysql"
@@ -42,19 +44,21 @@ services:
     networks:
       - webshop-network
 
-  category_service:
+  category-service:
     build:
       context: ./webshop-core-category-service
     ports:
       - "9252:8080"
+    expose:
+      - "8080"
     networks:
       - webshop-network
     depends_on:
-      - category_db
+      - category-db
     restart: on-failure # Try again if database was not ready
 
   # User Core Service + DB
-  user_db: # Name and environment variables must match datasource configuration in application.yml
+  user-db: # Name and environment variables must match datasource configuration in application.yml
     image: mysql:5.7
     volumes:
       - "./data_users:/var/lib/mysql"
@@ -68,7 +72,7 @@ services:
     networks:
       - webshop-network
 
-  user_service:
+  user-service:
     build:
       context: ./webshop-core-user-service
     ports:
@@ -76,8 +80,21 @@ services:
     networks:
       - webshop-network
     depends_on:
-      - user_db
+      - user-db
     restart: on-failure # Try again if database was not ready
+
+  # Inventory Composite Service
+  inventory-service:
+    build:
+      context: ./webshop-composite-inventory-service
+    ports:
+      - "9253:8080"
+    networks:
+      - webshop-network
+    depends_on:
+      - product-service
+      - category-service
+    restart: on-failure
 
 volumes:
   data_products:
@@ -87,3 +104,5 @@ volumes:
 networks:
   webshop-network:
     driver: bridge
+
+# vim: ts=2:sw=2

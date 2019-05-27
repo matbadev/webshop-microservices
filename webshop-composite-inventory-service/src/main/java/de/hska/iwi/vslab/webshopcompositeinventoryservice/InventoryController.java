@@ -18,10 +18,9 @@ import java.util.stream.Collectors;
 @RequestMapping(path = "/")
 public class InventoryController {
 
-    private final String productsUrl = "http://productservice:8080/products";
+    private final String productsUrl = "http://product-service:8080/products";
+    private final String categoriesUrl = "http://category-service:8080/categories";
 
-    // TODO: enter correct URL for category service
-    private final String categoriesUrl = "http://categoryservice:8080/categories";
     private final RestTemplate restTemplate = new RestTemplate();
 
     @GetMapping(path = "/products")
