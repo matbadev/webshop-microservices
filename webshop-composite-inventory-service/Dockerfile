@@ -1,4 +1,4 @@
-FROM maven:3.6.1-jdk-11 as builder
+FROM maven:3.6.1-jdk-11-slim as builder
 
 RUN mkdir -p /build
 WORKDIR /build
@@ -14,7 +14,7 @@ RUN mvn package -DskipTests
 
 # building done, proceeding to run the app
 
-FROM openjdk:11.0.3-jre-slim
+FROM openjdk:11-jre-slim
 EXPOSE 8080
 
 ENV APP_HOME /app
