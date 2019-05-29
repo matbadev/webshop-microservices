@@ -92,7 +92,7 @@ services:
       - category-service
     restart: on-failure
 
-  # Inventory Composite Service
+  # Discovery Service
   discovery-service:
     build:
       context: ./webshop-discovery-service
