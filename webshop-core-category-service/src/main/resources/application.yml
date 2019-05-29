@@ -2,8 +2,23 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
+  application:
+    name: category-service
 
   datasource:
     url: jdbc:mysql://category-db:3306/category?serverTimezone=UTC&useLegacyDatetimeCode=false&useSSL=false
     username: categoryuser
     password: geheim
+
+server:
+  port: 8080
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://discovery-service:8080/eureka/
+  instance:
+    preferIpAddress: true
+    leaseRenewalIntervalInSeconds: 5
+    metadataMap:
+      instanceId: "${spring.application.name}:${random.value}"
