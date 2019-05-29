@@ -11,7 +11,7 @@ import org.springframework.cloud.netflix.ribbon.RibbonClient;
 @EnableDiscoveryClient
 @EnableCircuitBreaker
 @EnableHystrixDashboard
-@RibbonClient("inventory-proxy")
+@RibbonClient("inventory-service")
 public class WebshopCompositeInventoryServiceApplication {
 
 	public static void main(String[] args) {
