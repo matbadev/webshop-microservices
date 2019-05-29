@@ -92,6 +92,16 @@ services:
       - category-service
     restart: on-failure
 
+  # Inventory Composite Service
+  discovery-service:
+    build:
+      context: ./webshop-discovery-service
+    ports:
+      - "9254:8080"
+    networks:
+      - webshop-network
+    restart: on-failure
+
 volumes:
   data_products:
   data_users:
