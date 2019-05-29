@@ -1,4 +1,10 @@
+server:
+  port: 8080
+
 spring:
+  application:
+    name: product-service
+
   jpa:
     hibernate:
       ddl-auto: update
@@ -7,3 +13,13 @@ spring:
     url: jdbc:mysql://product-db:3306/products?serverTimezone=UTC&useLegacyDatetimeCode=false&useSSL=false
     username: webshopuser
     password: c0ffeebabe
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://discovery-service:8080/eureka/
+  instance:
+    preferIpAddress: true
+    leaseRenewalIntervalInSeconds: 5
+    metadataMap:
+      instanceId: "${spring.application.name}:${random.value}"
