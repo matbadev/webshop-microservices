@@ -105,9 +105,9 @@ services:
   # Zuul-Edge Service
   edge-service:
     build:
-      context: ./webshop-edge-server
+      context: webshop-edge-service
     ports:
-      - "9255:8081"
+      - "9255:8080"
     networks:
       - webshop-network
     restart: on-failure

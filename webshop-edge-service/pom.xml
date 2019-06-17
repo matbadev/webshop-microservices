@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>de.hska.iwi.vslab</groupId>
-	<artifactId>edge-server</artifactId>
+	<artifactId>webshop-edge-service</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>webshop-edge-server</name>
+	<name>webshop-edge-service</name>
 	<description>Netflix Zuul Edge Server</description>
 
 	<properties>
