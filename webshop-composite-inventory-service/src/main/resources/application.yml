@@ -12,3 +12,11 @@ eureka:
     leaseRenewalIntervalInSeconds: 5
     metadataMap:
       instanceId: "${spring.application.name}:${random.value}"
+# See:
+# https://github.com/spring-cloud/spring-cloud-netflix/issues/2785#issuecomment-374941647
+# https://stackoverflow.com/a/50549755
+management:
+  endpoints:
+    web:
+      exposure:
+        include: hystrix.stream
