@@ -9,8 +9,8 @@ eureka:
 ribbon:
   eureka:
     enabled: true
-  ConnectTimeout: 10000
-  ReadTimeout: 10000
+  ConnectTimeout: 3600
+  ReadTimeout: 3600
 
 zuul:
   ignoredServices: '*'

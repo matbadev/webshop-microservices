@@ -1,5 +1,8 @@
 package de.hska.iwi.vslab.webshopcompositeinventoryservice;
 
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
+import org.springframework.cloud.netflix.hystrix.EnableHystrix;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -9,12 +12,11 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Controller
+@EnableHystrix
 @RequestMapping(path = "/")
 public class InventoryController {
 
@@ -22,6 +24,8 @@ public class InventoryController {
     private final String categoriesUrl = "http://category-service:8080/categories";
 
     private final RestTemplate restTemplate = new RestTemplate();
+
+    private final Map<Integer, Category> categoryCache = new HashMap<>();
 
     @GetMapping(path = "/products")
     public @ResponseBody
@@ -145,17 +149,29 @@ public class InventoryController {
         }
     }
 
+    @HystrixCommand(fallbackMethod = "getCategoriesCache", commandProperties = {
+            @HystrixProperty(name = "circuitBreaker.requestVolumeThreshold", value = "2")
+    })
     @GetMapping(path = "/categories")
     public @ResponseBody
     List<Category> getCategories() {
         // same bulky statement to get collection of categories
-        return restTemplate.exchange(
+        List<Category> categories =  restTemplate.exchange(
                 categoriesUrl,
                 HttpMethod.GET,
                 null,
                 new ParameterizedTypeReference<List<Category>>() {
                 }
         ).getBody();
+
+        categoryCache.clear();
+        categories.forEach(category -> categoryCache.put(category.getId(), category));
+
+        return categories;
+    }
+
+    public List<Category> getCategoriesCache() {
+        return new ArrayList<>(categoryCache.values());
     }
 
     @PostMapping(path = "/categories")
