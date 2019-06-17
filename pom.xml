@@ -7,6 +7,8 @@
     <artifactId>webshop-modules</artifactId>
     <version>1.0.0</version>
 
+    <packaging>pom</packaging>
+
     <modules>
         <module>webshop-composite-inventory-service</module>
         <module>webshop-core-category-service</module>
