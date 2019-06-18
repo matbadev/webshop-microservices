@@ -26,7 +26,11 @@ public class InventoryController {
     private final RestTemplate restTemplate = new RestTemplate();
 
     private final Map<Integer, Category> categoryCache = new HashMap<>();
+    private final Map<Integer, Product> productCache = new HashMap<>();
 
+    @HystrixCommand(fallbackMethod = "getProductsCache", commandProperties = {
+            @HystrixProperty(name = "circuitBreaker.requestVolumeThreshold", value = "2")
+    })
     @GetMapping(path = "/products")
     public @ResponseBody
     List<Product> getProducts(@RequestParam(required = false) String text,
@@ -68,9 +72,19 @@ public class InventoryController {
                 })
                 .collect(Collectors.toList());
 
+        productCache.clear();
+        products.forEach(product -> productCache.put(product.getId(), product));
+
         return products;
     }
 
+    public List<Product> getProductsCache() {
+        return new ArrayList<>(productCache.values());
+    }
+
+    @HystrixCommand(fallbackMethod = "newProductCache", commandProperties = {
+            @HystrixProperty(name = "circuitBreaker.requestVolumeThreshold", value = "2")
+    })
     @PostMapping(path = "/products")
     public ResponseEntity<Product> newProduct(@RequestBody ProductDto newProductDto) {
         // REST call
@@ -116,6 +130,13 @@ public class InventoryController {
         return ResponseEntity.status(HttpStatus.CREATED).body(product);
     }
 
+    public ResponseEntity<Product> newProductCache(@RequestBody ProductDto newProductDto) {
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(null);
+    }
+
+    @HystrixCommand(fallbackMethod = "getProductCache", commandProperties = {
+            @HystrixProperty(name = "circuitBreaker.requestVolumeThreshold", value = "2")
+    })
     @GetMapping(path = "/products/{productId}")
     public ResponseEntity<Product> getProduct(@PathVariable int productId) {
         ResponseEntity<ProductDto> productDtoResponseEntity = restTemplate.getForEntity(productsUrl + "/" + productId, ProductDto.class);
@@ -135,9 +156,23 @@ public class InventoryController {
         Product product = Product.fromDto(productDto);
         product.setCategory(category);
 
+        productCache.putIfAbsent(productId, product);
+
         return ResponseEntity.ok(product);
     }
 
+    public ResponseEntity<Product> getProductCache(@PathVariable int productId) {
+        try {
+            Product product = productCache.get(productId);
+            return ResponseEntity.ok(product);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+    }
+
+    @HystrixCommand(fallbackMethod = "deleteProductCache", commandProperties = {
+            @HystrixProperty(name = "circuitBreaker.requestVolumeThreshold", value = "2")
+    })
     @DeleteMapping(path = "/products/{productId}")
     public ResponseEntity<Void> deleteProduct(@PathVariable int productId) {
         // TODO: decide if orphaned categories should be also removed
@@ -147,6 +182,10 @@ public class InventoryController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
+    }
+
+    public ResponseEntity<Void> deleteProductCache(@PathVariable int productId) {
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(null);
     }
 
     @HystrixCommand(fallbackMethod = "getCategoriesCache", commandProperties = {
@@ -174,21 +213,44 @@ public class InventoryController {
         return new ArrayList<>(categoryCache.values());
     }
 
+    @HystrixCommand(fallbackMethod = "postCategoriesCache", commandProperties = {
+            @HystrixProperty(name = "circuitBreaker.requestVolumeThreshold", value = "2")
+    })
     @PostMapping(path = "/categories")
     public ResponseEntity<Category> postCategories(@RequestBody CategoryDto newCategory) {
         return restTemplate.postForEntity(categoriesUrl, newCategory, Category.class);
     }
 
+    public ResponseEntity<Category> postCategoriesCache(@RequestBody CategoryDto newCategory){
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(null);
+    }
+
+    @HystrixCommand(fallbackMethod = "getCategoryCache", commandProperties = {
+            @HystrixProperty(name = "circuitBreaker.requestVolumeThreshold", value = "2")
+    })
     @GetMapping(path = "/categories/{categoryId}")
     public ResponseEntity<Category> getCategory(@PathVariable long categoryId) {
         try {
             Category category = restTemplate.getForObject(categoriesUrl + "/" + categoryId, Category.class);
+            categoryCache.putIfAbsent((int) categoryId, category);
             return ResponseEntity.ok(category);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
     }
 
+    public ResponseEntity<Category> getCategoryCache(@PathVariable long categoryId) {
+        try {
+            Category category = categoryCache.get(categoryId);
+            return ResponseEntity.ok(category);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+    }
+
+    @HystrixCommand(fallbackMethod = "deleteCategoryCache", commandProperties = {
+            @HystrixProperty(name = "circuitBreaker.requestVolumeThreshold", value = "2")
+    })
     @DeleteMapping(path = "/categories/{categoryId}")
     public ResponseEntity<Void> deleteCategory(@PathVariable long categoryId) {
         try {
@@ -199,4 +261,7 @@ public class InventoryController {
         }
     }
 
+    public ResponseEntity<Void> deleteCategoryCache(@PathVariable long categoryId) {
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(null);
+    }
 }
