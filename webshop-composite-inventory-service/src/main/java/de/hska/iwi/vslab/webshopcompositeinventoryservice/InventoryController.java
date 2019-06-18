@@ -33,25 +33,24 @@ public class InventoryController {
     })
     @GetMapping(path = "/products")
     public @ResponseBody
-    List<Product> getProducts(@RequestParam(required = false) String text,
-                              @RequestParam(required = false) String minPrice,
-                              @RequestParam(required = false) String maxPrice) {
-
-        // pack params into the url
-        UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromHttpUrl(productsUrl)
-                .queryParam("text", text)
-                .queryParam("minPrice", minPrice)
-                .queryParam("maxPrice", maxPrice);
+    List<Product> getProducts(@RequestParam(defaultValue = "") String text,
+                              @RequestParam(defaultValue = "-1e20") double minPrice,
+                              @RequestParam(defaultValue = "1e20") double maxPrice) {
 
         // bulky statement, needed to retrieve collection of products
         ResponseEntity<List<ProductDto>> responseProd = restTemplate.exchange(
-                uriBuilder.toUriString(),
+                productsUrl,
                 HttpMethod.GET,
                 null,
                 new ParameterizedTypeReference<List<ProductDto>>() {
                 }
         );
-        List<ProductDto> incompleteProducts = responseProd.getBody();
+        List<ProductDto> incompleteProducts = responseProd.getBody()
+                .stream()
+                .filter(product -> (product.getName().contains(text) || product.getDetails().contains(text))
+                        && product.getPrice() >= minPrice
+                        && product.getPrice() <= maxPrice)
+                .collect(Collectors.toList());
 
         List<Category> categories = getCategories(); // REST call
         Map<Integer, Category> categoryMap = categories
@@ -78,8 +77,15 @@ public class InventoryController {
         return products;
     }
 
-    public List<Product> getProductsCache() {
-        return new ArrayList<>(productCache.values());
+    public List<Product> getProductsCache(String text,
+                                          double minPrice,
+                                          double maxPrice) {
+        return productCache.values()
+                .stream()
+                .filter(product -> (product.getName().contains(text) || product.getDetails().contains(text))
+                        && product.getPrice() >= minPrice
+                        && product.getPrice() <= maxPrice)
+                .collect(Collectors.toList());
     }
 
     @HystrixCommand(fallbackMethod = "newProductCache", commandProperties = {

@@ -24,14 +24,8 @@ public class ProductController {
 
     @GetMapping(path = "/products")
     public @ResponseBody
-    Iterable<Product> getProducts(@RequestParam(defaultValue = "") String text,
-                                  @RequestParam(defaultValue = "-1e20") double minPrice,
-                                  @RequestParam(defaultValue = "1e20") double maxPrice) {
-        return StreamSupport.stream(productRepository.findAll().spliterator(), false)
-                .filter(product -> (product.getName().contains(text) || product.getDetails().contains(text))
-                        && product.getPrice() >= minPrice
-                        && product.getPrice() <= maxPrice)
-                .collect(Collectors.toList());
+    Iterable<Product> getProducts() {
+        return productRepository.findAll();
     }
 
     @PostMapping(path = "/products")
