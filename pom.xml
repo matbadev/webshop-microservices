@@ -16,6 +16,7 @@
         <module>webshop-core-user-service</module>
         <module>webshop-discovery-service</module>
         <module>webshop-edge-service</module>
+        <module>webshop-hystrix-dashboard-service</module>
     </modules>
 
 </project>

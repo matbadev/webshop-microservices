@@ -112,6 +112,19 @@ services:
       - webshop-network
     restart: on-failure
 
+  # Hystrix Dashboard Service
+  #
+  # Usage:
+  # Go to http://localhost:9256/hystrix/ and use the following stream URL:
+  # http://inventory-service:8080/actuator/hystrix.stream
+  hystrix-dashboard-service:
+    build:
+      context: ./webshop-hystrix-dashboard-service
+    ports:
+      - "9256:8080"
+    networks:
+      - webshop-network
+
 volumes:
   data_products:
   data_users:
