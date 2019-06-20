@@ -24,6 +24,7 @@ services:
     networks:
       - webshop-network
     depends_on:
+      - discovery-service
       - product-db
     restart: on-failure # Try again if database was not ready
 
@@ -50,6 +51,7 @@ services:
     networks:
       - webshop-network
     depends_on:
+      - discovery-service
       - category-db
     restart: on-failure # Try again if database was not ready
 
@@ -76,6 +78,7 @@ services:
     networks:
       - webshop-network
     depends_on:
+      - discovery-service
       - user-db
     restart: on-failure # Try again if database was not ready
 
@@ -88,6 +91,7 @@ services:
     networks:
       - webshop-network
     depends_on:
+      - discovery-service
       - product-service
       - category-service
     restart: on-failure
@@ -110,6 +114,9 @@ services:
       - "9255:8080"
     networks:
       - webshop-network
+    depends_on:
+      - user-service
+      - inventory-service
     restart: on-failure
 
   # Hystrix Dashboard Service
@@ -122,6 +129,15 @@ services:
       context: ./webshop-hystrix-dashboard-service
     ports:
       - "9256:8080"
+    networks:
+      - webshop-network
+
+  webclient:
+    build:
+      context: ./webshop-webclient
+    ports:
+      - "8080:8080"
+    # TODO Move to own network
     networks:
       - webshop-network
 
