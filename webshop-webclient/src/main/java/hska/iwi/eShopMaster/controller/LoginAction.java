@@ -4,26 +4,22 @@ import com.opensymphony.xwork2.ActionContext;
 import com.opensymphony.xwork2.ActionSupport;
 import hska.iwi.eShopMaster.model.businessLogic.manager.UserManager;
 import hska.iwi.eShopMaster.model.businessLogic.manager.impl.UserManagerImpl;
-import hska.iwi.eShopMaster.model.database.dataobjects.User;
+import hska.iwi.eShopMaster.model.domain.User;
 
 import java.util.Map;
 
 public class LoginAction extends ActionSupport {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = -983183915002226000L;
+
     private String username = null;
     private String password = null;
     private String firstname;
     private String lastname;
     private String role;
 
-
     @Override
-    public String execute() throws Exception {
-
+    public String execute() {
         // Return string:
         String result = "input";
 
@@ -44,7 +40,7 @@ public class LoginAction extends ActionSupport {
                 session.put("message", "");
                 firstname = user.getFirstname();
                 lastname = user.getLastname();
-                role = user.getRole().getTyp();
+                role = user.getRole().getType();
                 result = "success";
             } else {
                 addActionError(getText("error.password.wrong"));
@@ -105,4 +101,5 @@ public class LoginAction extends ActionSupport {
     public void setRole(String role) {
         this.role = role;
     }
+
 }

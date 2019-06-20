@@ -1,38 +1,34 @@
 package hska.iwi.eShopMaster.model.database.dataAccessObjects;
 
-import hska.iwi.eShopMaster.model.database.GenericHibernateDAO;
-import hska.iwi.eShopMaster.model.database.dataobjects.User;
-import hska.iwi.eShopMaster.model.sessionFactory.util.HibernateUtil;
-import org.hibernate.Criteria;
-import org.hibernate.HibernateException;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.criterion.Restrictions;
+import hska.iwi.eShopMaster.model.domain.User;
+import hska.iwi.eShopMaster.model.domain.UserDto;
+import org.springframework.lang.Nullable;
+import org.springframework.web.client.RestTemplate;
 
-import java.util.List;
+import static hska.iwi.eShopMaster.model.ApiConfig.API_USERS;
+import static java.util.Objects.requireNonNull;
 
-public class UserDAO extends GenericHibernateDAO<User, Integer> {
+public class UserDAO {
 
+    private final RestTemplate restTemplate = new RestTemplate();
+
+    @Nullable
     public User getUserByUsername(String name) {
-        SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
-        Session session = sessionFactory.getCurrentSession();
-        try {
-            User user = null;
-            session.beginTransaction();
-            Criteria crit = session.createCriteria(User.class);
-            crit.add(Restrictions.eq("username", name));
-            List<User> resultList = crit.list();
-            if (resultList.size() > 0) {
-                user = (User) crit.list().get(0);
+        User[] users = requireNonNull(restTemplate.getForObject(API_USERS, User[].class));
+        for (User user : users) {
+            if (user.getUsername().equals(name)) {
+                return user;
             }
-            session.getTransaction().commit();
-            return user;
-        } catch (HibernateException e) {
-            System.out.println("Hibernate Exception" + e.getMessage());
-            session.getTransaction().rollback();
-            throw new RuntimeException(e);
         }
+        return null;
     }
 
+    public User createUser(UserDto userDto) {
+        return restTemplate.postForObject(API_USERS, userDto, User.class);
+    }
+
+    public void deleteUserById(int id) {
+        restTemplate.delete(API_USERS + "/" + id);
+    }
 
 }

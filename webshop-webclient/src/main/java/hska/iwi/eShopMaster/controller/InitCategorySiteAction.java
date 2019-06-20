@@ -4,17 +4,14 @@ import com.opensymphony.xwork2.ActionContext;
 import com.opensymphony.xwork2.ActionSupport;
 import hska.iwi.eShopMaster.model.businessLogic.manager.CategoryManager;
 import hska.iwi.eShopMaster.model.businessLogic.manager.impl.CategoryManagerImpl;
-import hska.iwi.eShopMaster.model.database.dataobjects.Category;
-import hska.iwi.eShopMaster.model.database.dataobjects.User;
+import hska.iwi.eShopMaster.model.domain.Category;
+import hska.iwi.eShopMaster.model.domain.User;
 
 import java.util.List;
 import java.util.Map;
 
 public class InitCategorySiteAction extends ActionSupport {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = -1108136421569378914L;
 
     private String pageToGoTo;
@@ -22,15 +19,13 @@ public class InitCategorySiteAction extends ActionSupport {
 
     private List<Category> categories;
 
-    public String execute() throws Exception {
-
+    public String execute() {
         String res = "input";
 
         Map<String, Object> session = ActionContext.getContext().getSession();
         user = (User) session.get("webshop_user");
         boolean isAdmin = true;
         if (user != null && isAdmin) {
-
             CategoryManager categoryManager = new CategoryManagerImpl();
             this.setCategories(categoryManager.getCategories());
 

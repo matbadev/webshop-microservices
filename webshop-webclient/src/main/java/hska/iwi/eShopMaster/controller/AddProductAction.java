@@ -6,8 +6,8 @@ import hska.iwi.eShopMaster.model.businessLogic.manager.CategoryManager;
 import hska.iwi.eShopMaster.model.businessLogic.manager.ProductManager;
 import hska.iwi.eShopMaster.model.businessLogic.manager.impl.CategoryManagerImpl;
 import hska.iwi.eShopMaster.model.businessLogic.manager.impl.ProductManagerImpl;
-import hska.iwi.eShopMaster.model.database.dataobjects.Category;
-import hska.iwi.eShopMaster.model.database.dataobjects.User;
+import hska.iwi.eShopMaster.model.domain.Category;
+import hska.iwi.eShopMaster.model.domain.User;
 
 import java.util.List;
 import java.util.Map;
@@ -22,17 +22,14 @@ public class AddProductAction extends ActionSupport {
     private String details = null;
     private List<Category> categories;
 
-    public String execute() throws Exception {
+    public String execute() {
         String result = "input";
         Map<String, Object> session = ActionContext.getContext().getSession();
         User user = (User) session.get("webshop_user");
 
-        if (user != null && (user.getRole().getTyp().equals("admin"))) {
-
+        if (user != null && (user.getRole().getType().equals("admin"))) {
             ProductManager productManager = new ProductManagerImpl();
-            int productId = productManager.addProduct(name, Double.parseDouble(price), categoryId,
-                    details);
-
+            int productId = productManager.addProduct(name, Double.parseDouble(price), categoryId, details);
             if (productId > 0) {
                 result = "success";
             }
@@ -46,13 +43,11 @@ public class AddProductAction extends ActionSupport {
         CategoryManager categoryManager = new CategoryManagerImpl();
         this.setCategories(categoryManager.getCategories());
         // Validate name:
-
         if (getName() == null || getName().length() == 0) {
             addActionError(getText("error.product.name.required"));
         }
 
         // Validate price:
-
         if (String.valueOf(getPrice()).length() > 0) {
             if (!getPrice().matches("[0-9]+(.[0-9][0-9]?)?")
                     || Double.parseDouble(getPrice()) < 0.0) {
@@ -102,4 +97,5 @@ public class AddProductAction extends ActionSupport {
     public void setCategories(List<Category> categories) {
         this.categories = categories;
     }
+
 }

@@ -6,9 +6,9 @@ import hska.iwi.eShopMaster.model.businessLogic.manager.CategoryManager;
 import hska.iwi.eShopMaster.model.businessLogic.manager.ProductManager;
 import hska.iwi.eShopMaster.model.businessLogic.manager.impl.CategoryManagerImpl;
 import hska.iwi.eShopMaster.model.businessLogic.manager.impl.ProductManagerImpl;
-import hska.iwi.eShopMaster.model.database.dataobjects.Category;
-import hska.iwi.eShopMaster.model.database.dataobjects.Product;
-import hska.iwi.eShopMaster.model.database.dataobjects.User;
+import hska.iwi.eShopMaster.model.domain.Category;
+import hska.iwi.eShopMaster.model.domain.Product;
+import hska.iwi.eShopMaster.model.domain.User;
 
 import java.util.List;
 import java.util.Locale;
@@ -16,11 +16,7 @@ import java.util.Map;
 
 public class SearchAction extends ActionSupport {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = -6565401833074694229L;
-
 
     private String searchDescription = null;
     private String searchMinPrice;
@@ -33,9 +29,7 @@ public class SearchAction extends ActionSupport {
     private List<Product> products;
     private List<Category> categories;
 
-
-    public String execute() throws Exception {
-
+    public String execute() {
         String result = "input";
 
         // Get user:
@@ -46,7 +40,6 @@ public class SearchAction extends ActionSupport {
         if (user != null) {
             // Search products and show results:
             ProductManager productManager = new ProductManagerImpl();
-//			this.products = productManager.getProductsForSearchValues(this.searchDescription, this.searchMinPrice, this.searchMaxPrice);
             if (!searchMinPrice.isEmpty()) {
                 sMinPrice = Double.parseDouble(this.searchMinPrice);
             }
@@ -63,7 +56,6 @@ public class SearchAction extends ActionSupport {
 
         return result;
     }
-
 
     public User getUser() {
         return user;
@@ -89,53 +81,28 @@ public class SearchAction extends ActionSupport {
         this.categories = categories;
     }
 
-
     public String getSearchValue() {
         return searchDescription;
     }
-
 
     public void setSearchValue(String searchValue) {
         this.searchDescription = searchValue;
     }
 
-
     public String getSearchMinPrice() {
         return searchMinPrice;
     }
-
 
     public void setSearchMinPrice(String searchMinPrice) {
         this.searchMinPrice = searchMinPrice;
     }
 
-
     public String getSearchMaxPrice() {
         return searchMaxPrice;
     }
-
 
     public void setSearchMaxPrice(String searchMaxPrice) {
         this.searchMaxPrice = searchMaxPrice;
     }
 
-
-//	public Double getSearchMinPrice() {
-//		return searchMinPrice;
-//	}
-//
-//
-//	public void setSearchMinPrice(Double searchMinPrice) {
-//		this.searchMinPrice = searchMinPrice;
-//	}
-//
-//
-//	public Double getSearchMaxPrice() {
-//		return searchMaxPrice;
-//	}
-//
-//
-//	public void setSearchMaxPrice(Double searchMaxPrice) {
-//		this.searchMaxPrice = searchMaxPrice;
-//	}
 }

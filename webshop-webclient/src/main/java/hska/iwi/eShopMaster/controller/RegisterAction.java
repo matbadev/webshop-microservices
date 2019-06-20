@@ -4,50 +4,40 @@ import com.opensymphony.xwork2.ActionContext;
 import com.opensymphony.xwork2.ActionSupport;
 import hska.iwi.eShopMaster.model.businessLogic.manager.UserManager;
 import hska.iwi.eShopMaster.model.businessLogic.manager.impl.UserManagerImpl;
-import hska.iwi.eShopMaster.model.database.dataobjects.Role;
 
 import java.util.Map;
 
 public class RegisterAction extends ActionSupport {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = 3655805600703279195L;
+
     private String username;
     private String password1;
     private String password2;
     private String firstname;
     private String lastname;
 
-    private Role role = null;
-
     @Override
-    public String execute() throws Exception {
-
+    public String execute() {
         // Return string:
         String result = "input";
 
         UserManager userManager = new UserManagerImpl();
 
-        this.role = userManager.getRoleByLevel(1); // 1 -> regular User, 2-> Admin
-
         if (!userManager.doesUserAlreadyExist(this.username)) {
-
             // save it to database
-            userManager.registerUser(this.username, this.firstname, this.lastname, this.password1, this.role);
-            // User has been saved successfully to databse:
+            userManager.registerUser(this.username, this.firstname, this.lastname, this.password1, "user");
+            // User has been saved successfully to database:
             addActionMessage("user registered, please login");
             addActionError("user registered, please login");
             Map<String, Object> session = ActionContext.getContext().getSession();
             session.put("message", "user registered, please login");
             result = "success";
-
         } else {
             addActionError(getText("error.username.alreadyInUse"));
         }
-        return result;
 
+        return result;
     }
 
     @Override
@@ -111,14 +101,6 @@ public class RegisterAction extends ActionSupport {
 
     public void setPassword2(String password) {
         this.password2 = password;
-    }
-
-    public Role getRole() {
-        return (this.role);
-    }
-
-    public void setRole(Role role) {
-        this.role = role;
     }
 
 }

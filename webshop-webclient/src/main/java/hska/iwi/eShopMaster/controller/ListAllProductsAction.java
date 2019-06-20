@@ -4,23 +4,20 @@ import com.opensymphony.xwork2.ActionContext;
 import com.opensymphony.xwork2.ActionSupport;
 import hska.iwi.eShopMaster.model.businessLogic.manager.ProductManager;
 import hska.iwi.eShopMaster.model.businessLogic.manager.impl.ProductManagerImpl;
-import hska.iwi.eShopMaster.model.database.dataobjects.Product;
-import hska.iwi.eShopMaster.model.database.dataobjects.User;
+import hska.iwi.eShopMaster.model.domain.Product;
+import hska.iwi.eShopMaster.model.domain.User;
 
 import java.util.List;
 import java.util.Map;
 
 public class ListAllProductsAction extends ActionSupport {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = -94109228677381902L;
 
     User user;
     private List<Product> products;
 
-    public String execute() throws Exception {
+    public String execute() {
         String result = "input";
 
         Map<String, Object> session = ActionContext.getContext().getSession();
