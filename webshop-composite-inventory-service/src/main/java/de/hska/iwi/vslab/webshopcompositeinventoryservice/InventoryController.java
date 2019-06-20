@@ -3,17 +3,28 @@ package de.hska.iwi.vslab.webshopcompositeinventoryservice;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
 import org.springframework.cloud.netflix.hystrix.EnableHystrix;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static java.util.Objects.requireNonNull;
 
 @Controller
 @EnableHystrix
@@ -32,21 +43,13 @@ public class InventoryController {
             @HystrixProperty(name = "circuitBreaker.requestVolumeThreshold", value = "2")
     })
     @GetMapping(path = "/products")
-    public @ResponseBody
-    List<Product> getProducts(@RequestParam(defaultValue = "") String text,
-                              @RequestParam(defaultValue = "-1e20") double minPrice,
-                              @RequestParam(defaultValue = "1e20") double maxPrice) {
-
+    @ResponseBody
+    public List<Product> getProducts(@RequestParam(defaultValue = "") String text,
+                                     @RequestParam(defaultValue = "-1e20") Double minPrice,
+                                     @RequestParam(defaultValue = "1e20") Double maxPrice) {
         // bulky statement, needed to retrieve collection of products
-        ResponseEntity<List<ProductDto>> responseProd = restTemplate.exchange(
-                productsUrl,
-                HttpMethod.GET,
-                null,
-                new ParameterizedTypeReference<List<ProductDto>>() {
-                }
-        );
-        List<ProductDto> incompleteProducts = responseProd.getBody()
-                .stream()
+        ProductCore[] responseProd = requireNonNull(restTemplate.getForObject(productsUrl, ProductCore[].class));
+        List<ProductCore> incompleteProducts = Arrays.stream(responseProd)
                 .filter(product -> (product.getName().contains(text) || product.getDetails().contains(text))
                         && product.getPrice() >= minPrice
                         && product.getPrice() <= maxPrice)
@@ -57,17 +60,10 @@ public class InventoryController {
                 .stream()
                 .collect(Collectors.toMap(Category::getId, category -> category, (a, b) -> b));
 
-        Category defaultCategory = new Category();
-        // TODO: change to suitable id and name
-        defaultCategory.setId(-1);
-        defaultCategory.setName("DefaultCategory");
-
-        List<Product> products = incompleteProducts
-                .stream()
-                .map(productDto -> {
-                    Product product = Product.fromDto(productDto);
-                    product.setCategory(categoryMap.getOrDefault(productDto.getCategoryId(), defaultCategory));
-                    return product;
+        List<Product> products = incompleteProducts.stream()
+                .map((ProductCore productCore) -> {
+                    Category category = categoryMap.get(productCore.getCategoryId());
+                    return new Product(productCore.getId(), productCore.getName(), productCore.getPrice(), productCore.getDetails(), category);
                 })
                 .collect(Collectors.toList());
 
@@ -77,9 +73,7 @@ public class InventoryController {
         return products;
     }
 
-    public List<Product> getProductsCache(String text,
-                                          double minPrice,
-                                          double maxPrice) {
+    public List<Product> getProductsCache(String text, Double minPrice, Double maxPrice) {
         return productCache.values()
                 .stream()
                 .filter(product -> (product.getName().contains(text) || product.getDetails().contains(text))
@@ -93,47 +87,44 @@ public class InventoryController {
     })
     @PostMapping(path = "/products")
     public ResponseEntity<Product> newProduct(@RequestBody ProductDto newProductDto) {
-        // REST call
-        List<Category> categories = getCategories();
-        Optional<Category> categoryOptional = categories.stream()
-                .filter(category -> category.getName().equals(newProductDto.getName()))
+        String categoryName = newProductDto.getCategory();
+        Optional<Category> categoryOptional = getCategories().stream()
+                .filter(category -> category.getName().equals(categoryName))
                 .findFirst();
 
         Category category;
 
-        // set the category id in the dto, so that the product gets correctly created
         if (categoryOptional.isPresent()) {
             category = categoryOptional.get();
-            newProductDto.setCategoryId(category.getId());
         } else {
             // create category if it did not exist
-            CategoryDto categoryDto = new CategoryDto();
-            categoryDto.setName(newProductDto.getCategory());
+            CategoryDto categoryDto = new CategoryDto(categoryName);
 
             // REST call
-            ResponseEntity<Category> categoryResponseEntity = postCategories(categoryDto);
+            ResponseEntity<Category> categoryResponseEntity = createCategory(categoryDto);
 
             if (!categoryResponseEntity.getStatusCode().equals(HttpStatus.CREATED)) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-            } else {
-                category = categoryResponseEntity.getBody();
-                newProductDto.setCategoryId(category.getId());
             }
+
+            category = categoryResponseEntity.getBody();
         }
+
+        ProductCore newProductCore = new ProductCore(newProductDto.getName(), newProductDto.getPrice(), newProductDto.getDetails(), category.getId());
 
         // create the product
         // REST call
-        ResponseEntity<Product> productResponseEntity = restTemplate.postForEntity(productsUrl, newProductDto, Product.class);
+        ResponseEntity<ProductCore> productResponseEntity = restTemplate.postForEntity(productsUrl, newProductCore, ProductCore.class);
 
         if (!productResponseEntity.getStatusCode().equals(HttpStatus.CREATED)) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
 
         // put the category object into the newly created product
-        Product product = productResponseEntity.getBody();
-        product.setCategory(category);
+        ProductCore createdProductCore = productResponseEntity.getBody();
+        Product createdProduct = new Product(createdProductCore.getId(), createdProductCore.getName(), createdProductCore.getPrice(), createdProductCore.getDetails(), category);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(product);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdProduct);
     }
 
     public ResponseEntity<Product> newProductCache(@RequestBody ProductDto newProductDto) {
@@ -145,22 +136,19 @@ public class InventoryController {
     })
     @GetMapping(path = "/products/{productId}")
     public ResponseEntity<Product> getProduct(@PathVariable int productId) {
-        ResponseEntity<ProductDto> productDtoResponseEntity = restTemplate.getForEntity(productsUrl + "/" + productId, ProductDto.class);
+        ResponseEntity<ProductCore> productDtoResponseEntity = restTemplate.getForEntity(productsUrl + "/" + productId, ProductCore.class);
         if (!productDtoResponseEntity.getStatusCode().equals(HttpStatus.OK)) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
+        ProductCore productCore = productDtoResponseEntity.getBody();
 
-        ProductDto productDto = productDtoResponseEntity.getBody();
-
-        ResponseEntity<Category> categoryResponseEntity = getCategory(productDto.getCategoryId());
+        ResponseEntity<Category> categoryResponseEntity = getCategory(productCore.getCategoryId());
         if (!categoryResponseEntity.getStatusCode().equals(HttpStatus.OK)) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Product.fromDto(productDto));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
-
         Category category = categoryResponseEntity.getBody();
 
-        Product product = Product.fromDto(productDto);
-        product.setCategory(category);
+        Product product = new Product(productCore.getId(), productCore.getName(), productCore.getPrice(), productCore.getDetails(), category);
 
         productCache.putIfAbsent(productId, product);
 
@@ -201,13 +189,8 @@ public class InventoryController {
     public @ResponseBody
     List<Category> getCategories() {
         // same bulky statement to get collection of categories
-        List<Category> categories =  restTemplate.exchange(
-                categoriesUrl,
-                HttpMethod.GET,
-                null,
-                new ParameterizedTypeReference<List<Category>>() {
-                }
-        ).getBody();
+        Category[] categoriesArray = requireNonNull(restTemplate.getForObject(categoriesUrl, Category[].class));
+        List<Category> categories = List.of(categoriesArray);
 
         categoryCache.clear();
         categories.forEach(category -> categoryCache.put(category.getId(), category));
@@ -219,15 +202,15 @@ public class InventoryController {
         return new ArrayList<>(categoryCache.values());
     }
 
-    @HystrixCommand(fallbackMethod = "postCategoriesCache", commandProperties = {
+    @HystrixCommand(fallbackMethod = "createCategoryCache", commandProperties = {
             @HystrixProperty(name = "circuitBreaker.requestVolumeThreshold", value = "2")
     })
     @PostMapping(path = "/categories")
-    public ResponseEntity<Category> postCategories(@RequestBody CategoryDto newCategory) {
+    public ResponseEntity<Category> createCategory(@RequestBody CategoryDto newCategory) {
         return restTemplate.postForEntity(categoriesUrl, newCategory, Category.class);
     }
 
-    public ResponseEntity<Category> postCategoriesCache(@RequestBody CategoryDto newCategory){
+    public ResponseEntity<Category> createCategoryCache(@RequestBody CategoryDto newCategory) {
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(null);
     }
 
@@ -270,4 +253,5 @@ public class InventoryController {
     public ResponseEntity<Void> deleteCategoryCache(@PathVariable long categoryId) {
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(null);
     }
+
 }

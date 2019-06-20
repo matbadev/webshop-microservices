@@ -1,7 +1,15 @@
 package de.hska.iwi.vslab.webshopcompositeinventoryservice;
 
 public class CategoryDto {
+
     private String name;
+
+    public CategoryDto() {
+    }
+
+    public CategoryDto(String name) {
+        this.name = name;
+    }
 
     public String getName() {
         return name;
@@ -10,4 +18,5 @@ public class CategoryDto {
     public void setName(String name) {
         this.name = name;
     }
+
 }
