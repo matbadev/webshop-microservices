@@ -48,7 +48,8 @@ public class EdgeServerApplication {
         @Override
         public void configure(AuthorizationServerEndpointsConfigurer endpoints) {
             endpoints.tokenStore(tokenStore())
-                    .authenticationManager(authenticationManager);
+                    .authenticationManager(authenticationManager)
+                    .tokenEnhancer(new CustomTokenEnhancer());
         }
 
         @Override
@@ -57,8 +58,8 @@ public class EdgeServerApplication {
                     .withClient("webshop-webclient")
                     .secret("{noop}secret")
                     .authorizedGrantTypes("client_credentials", "password")
-                    .scopes("read");
-
+                    .scopes("read")
+                    .authorities("ROLE_USER", "ROLE_ADMIN");
         }
 
     }
@@ -71,7 +72,6 @@ public class EdgeServerApplication {
         public void configure(HttpSecurity http) throws Exception {
             http.anonymous().disable()
                     .authorizeRequests()
-                    .antMatchers("/user-api/**").authenticated()
                     .antMatchers("/inventory-api/**").authenticated()
                     .and()
                     .exceptionHandling().accessDeniedHandler(new OAuth2AccessDeniedHandler());
@@ -84,9 +84,6 @@ public class EdgeServerApplication {
     @EnableGlobalMethodSecurity(prePostEnabled = true)
     public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-        @Autowired
-        private WebshopUserDetailsService userDetailsService;
-
         @Override
         @Bean
         public AuthenticationManager authenticationManagerBean() throws Exception {
@@ -95,7 +92,7 @@ public class EdgeServerApplication {
 
         @Autowired
         public void globalUserDetails(AuthenticationManagerBuilder auth) throws Exception {
-            auth.userDetailsService(userDetailsService);
+            auth.authenticationProvider(new WebshopAuthenticationProvider());
         }
     }
 

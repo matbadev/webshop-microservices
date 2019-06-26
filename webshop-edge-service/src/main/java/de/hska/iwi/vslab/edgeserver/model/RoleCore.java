@@ -1,19 +1,12 @@
-package hska.iwi.eShopMaster.model.domain;
+package de.hska.iwi.vslab.edgeserver.model;
 
-public class Role {
+public class RoleCore {
 
     private int id;
+
     private String type;
+
     private int level;
-
-    public Role() {
-    }
-
-    public Role(int id, String type, int level) {
-        this.id = id;
-        this.type = type;
-        this.level = level;
-    }
 
     public int getId() {
         return id;
@@ -41,7 +34,7 @@ public class Role {
 
     @Override
     public String toString() {
-        return "Role{" +
+        return "RoleCore{" +
                 "id=" + id +
                 ", type='" + type + '\'' +
                 ", level=" + level +

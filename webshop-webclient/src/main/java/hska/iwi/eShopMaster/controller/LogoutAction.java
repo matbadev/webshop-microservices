@@ -2,6 +2,7 @@ package hska.iwi.eShopMaster.controller;
 
 import com.opensymphony.xwork2.ActionContext;
 import com.opensymphony.xwork2.ActionSupport;
+import hska.iwi.eShopMaster.model.ApiConfig;
 
 public class LogoutAction extends ActionSupport {
 
@@ -10,6 +11,7 @@ public class LogoutAction extends ActionSupport {
     public String execute() {
         // Clear session:
         ActionContext.getContext().getSession().clear();
+        ApiConfig.resetRestTemplate();
 
         return "success";
     }

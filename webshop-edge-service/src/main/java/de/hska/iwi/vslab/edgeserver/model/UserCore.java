@@ -1,24 +1,21 @@
-package hska.iwi.eShopMaster.model.domain;
+package de.hska.iwi.vslab.edgeserver.model;
 
-public class User {
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.security.core.GrantedAuthority;
+
+public class UserCore implements GrantedAuthority {
 
     private int id;
+
     private String username;
+
     private String firstname;
+
     private String lastname;
+
     private String password;
-    private Role role;
 
-    public User() {
-    }
-
-    public User(String username, String firstname, String lastname, String password, Role role) {
-        this.username = username;
-        this.firstname = firstname;
-        this.lastname = lastname;
-        this.password = password;
-        this.role = role;
-    }
+    private RoleCore role;
 
     public int getId() {
         return id;
@@ -60,17 +57,17 @@ public class User {
         this.password = password;
     }
 
-    public Role getRole() {
+    public RoleCore getRole() {
         return role;
     }
 
-    public void setRole(Role role) {
+    public void setRole(RoleCore role) {
         this.role = role;
     }
 
     @Override
     public String toString() {
-        return "User{" +
+        return "UserCore{" +
                 "id=" + id +
                 ", username='" + username + '\'' +
                 ", firstname='" + firstname + '\'' +
@@ -78,6 +75,12 @@ public class User {
                 ", password='" + password + '\'' +
                 ", role=" + role +
                 '}';
+    }
+
+    @JsonIgnore
+    @Override
+    public String getAuthority() {
+        return role.getType();
     }
 
 }

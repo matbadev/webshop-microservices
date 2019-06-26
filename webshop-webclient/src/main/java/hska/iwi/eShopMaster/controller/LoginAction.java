@@ -1,14 +1,23 @@
 package hska.iwi.eShopMaster.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.opensymphony.xwork2.ActionContext;
 import com.opensymphony.xwork2.ActionSupport;
-import hska.iwi.eShopMaster.model.businessLogic.manager.UserManager;
-import hska.iwi.eShopMaster.model.businessLogic.manager.impl.UserManagerImpl;
+import hska.iwi.eShopMaster.model.ApiConfig;
 import hska.iwi.eShopMaster.model.domain.User;
+import org.springframework.security.oauth2.client.OAuth2RestTemplate;
+import org.springframework.security.oauth2.client.token.grant.password.ResourceOwnerPasswordResourceDetails;
+import org.springframework.security.oauth2.common.OAuth2AccessToken;
 
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class LoginAction extends ActionSupport {
+
+    private static final Logger logger = Logger.getLogger(LoginAction.class.getSimpleName());
+
+    private OAuth2RestTemplate restTemplate = ApiConfig.getRestTemplate();
 
     private static final long serialVersionUID = -983183915002226000L;
 
@@ -20,36 +29,41 @@ public class LoginAction extends ActionSupport {
 
     @Override
     public String execute() {
-        // Return string:
-        String result = "input";
+        ResourceOwnerPasswordResourceDetails resourceDetails = (ResourceOwnerPasswordResourceDetails) restTemplate.getResource();
+        resourceDetails.setUsername(username);
+        resourceDetails.setPassword(password);
 
-        UserManager myCManager = new UserManagerImpl();
+        OAuth2AccessToken accessToken;
 
-        // Get user from DB:
-        User user = myCManager.getUserByUsername(getUsername());
-
-        // Does user exist?
-        if (user != null) {
-            // Is the password correct?
-            if (user.getPassword().equals(getPassword())) {
-                // Get session to save user role and login:
-                Map<String, Object> session = ActionContext.getContext().getSession();
-
-                // Save user object in session:
-                session.put("webshop_user", user);
-                session.put("message", "");
-                firstname = user.getFirstname();
-                lastname = user.getLastname();
-                role = user.getRole().getType();
-                result = "success";
-            } else {
-                addActionError(getText("error.password.wrong"));
-            }
-        } else {
+        try {
+            accessToken = restTemplate.getAccessToken();
+        } catch (Exception ex) {
+            ex.printStackTrace();
             addActionError(getText("error.username.wrong"));
+            return INPUT;
         }
 
-        return result;
+        Map<String, Object> information = accessToken.getAdditionalInformation();
+        String userString = (String)information.get("user");
+
+        ObjectMapper mapper = new ObjectMapper();
+        User user;
+        try {
+            user = mapper.readValue(userString, User.class);
+        } catch (Exception ex) {
+            logger.log(Level.WARNING, ex, () -> "");
+            return INPUT;
+        }
+
+        logger.info("Read user: " + user);
+
+        Map<String, Object> session = ActionContext.getContext().getSession();
+        session.put("webshop_user", user);
+        session.put("message", "");
+        firstname = user.getFirstname();
+        lastname = user.getLastname();
+        role = user.getRole().getType();
+        return SUCCESS;
     }
 
     @Override

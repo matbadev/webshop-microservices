@@ -1,8 +1,9 @@
 package hska.iwi.eShopMaster.model.database.dataAccessObjects;
 
+import hska.iwi.eShopMaster.model.ApiConfig;
 import hska.iwi.eShopMaster.model.domain.Product;
 import hska.iwi.eShopMaster.model.domain.ProductDto;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.Arrays;
@@ -16,7 +17,7 @@ public class ProductDAO {
 
     private static final Logger logger = Logger.getLogger(ProductDAO.class.getSimpleName());
 
-    private final RestTemplate restTemplate = new RestTemplate();
+    private OAuth2RestTemplate restTemplate = ApiConfig.getRestTemplate();
 
     public List<Product> getProducts() {
         Product[] products = requireNonNull(restTemplate.getForObject(API_INVENTORY_PRODUCTS, Product[].class));

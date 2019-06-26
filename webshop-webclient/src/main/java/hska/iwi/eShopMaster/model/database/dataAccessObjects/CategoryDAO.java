@@ -1,8 +1,9 @@
 package hska.iwi.eShopMaster.model.database.dataAccessObjects;
 
+import hska.iwi.eShopMaster.model.ApiConfig;
 import hska.iwi.eShopMaster.model.domain.Category;
 import hska.iwi.eShopMaster.model.domain.CategoryDto;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 
 import java.util.List;
 
@@ -11,7 +12,7 @@ import static java.util.Objects.requireNonNull;
 
 public class CategoryDAO {
 
-    private final RestTemplate restTemplate = new RestTemplate();
+    private OAuth2RestTemplate restTemplate = ApiConfig.getRestTemplate();
 
     public List<Category> getCategories() {
         Category[] categories = requireNonNull(restTemplate.getForObject(API_INVENTORY_CATEGORIES, Category[].class));
