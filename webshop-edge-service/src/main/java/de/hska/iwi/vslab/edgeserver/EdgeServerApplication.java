@@ -58,8 +58,7 @@ public class EdgeServerApplication {
                     .withClient("webshop-webclient")
                     .secret("{noop}secret")
                     .authorizedGrantTypes("client_credentials", "password")
-                    .scopes("read")
-                    .authorities("ROLE_USER", "ROLE_ADMIN");
+                    .scopes("read");
         }
 
     }

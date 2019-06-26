@@ -18,25 +18,12 @@ public class UserManagerImpl implements UserManager {
         return helper.createUser(user);
     }
 
-    public User getUserByUsername(String username) {
-        if (username == null || username.equals("")) {
-            return null;
-        }
-        return helper.getUserByUsername(username);
-    }
-
-    public boolean deleteUserById(int id) {
-        helper.deleteUserById(id);
-        return true;
-    }
-
     public Role getRoleByLevel(int level) {
         throw new UnsupportedOperationException();
     }
 
     public boolean doesUserAlreadyExist(String username) {
-        User dbUser = getUserByUsername(username);
-        return dbUser != null;
+        return helper.doesUserAlreadyExist(username);
     }
 
     public boolean validate(User user) {
