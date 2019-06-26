@@ -18,6 +18,7 @@
         <module>webshop-edge-service</module>
         <module>webshop-hystrix-dashboard-service</module>
         <module>webshop-webclient</module>
+        <module>webshop-oauth-service</module>
     </modules>
 
 </project>
