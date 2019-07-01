@@ -2,10 +2,14 @@ package de.hska.iwi.vslab.edgeserver;
 
 import de.hska.iwi.vslab.edgeserver.model.NewUser;
 import de.hska.iwi.vslab.edgeserver.model.UserCore;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 import javax.validation.Valid;
+
+import static java.util.Objects.requireNonNull;
 
 @RestController
 @RequestMapping("user-api/users")
@@ -17,18 +21,18 @@ public class UserController {
 
     @PostMapping
     public UserCore createUser(@RequestBody @Valid NewUser newUser) {
-        return restTemplate.postForObject(API_USERS, newUser, UserCore.class);
+        return requireNonNull(restTemplate.postForObject(API_USERS, newUser, UserCore.class));
     }
 
-    @GetMapping
-    public String doesUserAlreadyExist(@RequestParam String username) {
-        UserCore[] users = restTemplate.getForObject(API_USERS, UserCore[].class);
+    @RequestMapping(method = RequestMethod.HEAD)
+    public ResponseEntity<Void> doesUserAlreadyExist(@RequestParam String username) {
+        UserCore[] users = requireNonNull(restTemplate.getForObject(API_USERS, UserCore[].class));
         for (UserCore user : users) {
             if (user.getUsername().equals(username)) {
-                return "true";
+                return ResponseEntity.status(HttpStatus.OK).build();
             }
         }
-        return "false";
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
 }
