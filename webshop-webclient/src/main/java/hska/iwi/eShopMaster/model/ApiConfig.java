@@ -5,7 +5,6 @@ import org.springframework.security.oauth2.client.token.grant.password.ResourceO
 
 public class ApiConfig {
 
-    // TODO Move webclient to own Docker network and adjust URL to localhost:9255
     private static final String SERVICE_BASE = "http://edge-service:8080";
 
     private static final String SERVICE_INVENTORY = SERVICE_BASE + "/inventory-api";
