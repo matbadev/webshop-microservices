@@ -114,6 +114,7 @@ services:
       - "9255:8080"
     networks:
       - webshop-network
+      - client-network
     depends_on:
       - user-service
       - inventory-service
@@ -137,9 +138,8 @@ services:
       context: ./webshop-webclient
     ports:
       - "8080:8080"
-    # TODO Move to own network
     networks:
-      - webshop-network
+      - client-network
 
 volumes:
   data_products:
@@ -148,4 +148,6 @@ volumes:
 
 networks:
   webshop-network:
+    driver: bridge
+  client-network:
     driver: bridge
