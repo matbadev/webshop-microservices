@@ -5,9 +5,13 @@ import com.opensymphony.xwork2.ActionContext;
 import com.opensymphony.xwork2.ActionSupport;
 import hska.iwi.eShopMaster.model.ApiConfig;
 import hska.iwi.eShopMaster.model.domain.User;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.client.OAuth2RestTemplate;
+import org.springframework.security.oauth2.client.resource.OAuth2AccessDeniedException;
 import org.springframework.security.oauth2.client.token.grant.password.ResourceOwnerPasswordResourceDetails;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
+import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
+import org.springframework.web.client.HttpClientErrorException;
 
 import java.util.Map;
 import java.util.logging.Level;
@@ -37,10 +41,19 @@ public class LoginAction extends ActionSupport {
 
         try {
             accessToken = restTemplate.getAccessToken();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            addActionError(getText("error.username.wrong"));
-            return INPUT;
+        } catch (OAuth2AccessDeniedException ex) {
+            Throwable cause = ex.getCause();
+            if (cause instanceof HttpClientErrorException) {
+                HttpStatus status = ((HttpClientErrorException)cause).getStatusCode();
+                if (status.equals(HttpStatus.UNAUTHORIZED)) {
+                    addActionError(getText("error.username.wrong"));
+                    return INPUT;
+                }
+            } else if (cause instanceof OAuth2Exception) {
+                addActionError(getText("error.password.wrong"));
+                return INPUT;
+            }
+            throw ex;
         }
 
         Map<String, Object> information = accessToken.getAdditionalInformation();
