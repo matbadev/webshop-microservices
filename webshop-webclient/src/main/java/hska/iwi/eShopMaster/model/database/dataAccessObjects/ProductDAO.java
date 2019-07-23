@@ -1,31 +1,36 @@
 package hska.iwi.eShopMaster.model.database.dataAccessObjects;
 
-import hska.iwi.eShopMaster.model.ApiConfig;
 import hska.iwi.eShopMaster.model.domain.Product;
 import hska.iwi.eShopMaster.model.domain.ProductDto;
-import org.springframework.security.oauth2.client.OAuth2RestTemplate;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 
+import static hska.iwi.eShopMaster.NetworkUtils.buildBearerEntity;
 import static hska.iwi.eShopMaster.model.ApiConfig.API_INVENTORY_PRODUCTS;
 import static java.util.Objects.requireNonNull;
 
 public class ProductDAO {
 
-    private static final Logger logger = Logger.getLogger(ProductDAO.class.getSimpleName());
+    private static final Logger LOGGER = Logger.getLogger(ProductDAO.class.getSimpleName());
 
-    private OAuth2RestTemplate restTemplate = ApiConfig.getRestTemplate();
+    private final RestTemplate restTemplate = new RestTemplate();
 
     public List<Product> getProducts() {
-        Product[] products = requireNonNull(restTemplate.getForObject(API_INVENTORY_PRODUCTS, Product[].class));
-        return List.of(products);
+        ResponseEntity<Product[]> productsEntity = restTemplate.exchange(
+                API_INVENTORY_PRODUCTS, HttpMethod.GET, buildBearerEntity(), Product[].class);
+        return List.of(requireNonNull(productsEntity.getBody()));
     }
 
     public Product getProductById(int id) {
-        return restTemplate.getForObject(API_INVENTORY_PRODUCTS + "/" + id, Product.class);
+        ResponseEntity<Product> productEntity = restTemplate.exchange(
+                API_INVENTORY_PRODUCTS + "/" + id, HttpMethod.GET, buildBearerEntity(), Product.class);
+        return requireNonNull(productEntity.getBody());
     }
 
     public Product getProductByName(String name) {
@@ -33,24 +38,30 @@ public class ProductDAO {
     }
 
     public List<Product> getProductListByCriteria(String text, Double minPrice, Double maxPrice) {
-        logger.info(String.format("[getProductListByCriteria] text='%s', minPrice='%s', maxPrice='%s'", text, minPrice, maxPrice));
+        LOGGER.info(String.format("[getProductListByCriteria] text='%s', minPrice='%s', maxPrice='%s'", text, minPrice, maxPrice));
 
         UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromHttpUrl(API_INVENTORY_PRODUCTS);
         if (text != null) uriBuilder.queryParam("text", text);
         if (minPrice != null) uriBuilder.queryParam("minPrice", minPrice);
         if (maxPrice != null) uriBuilder.queryParam("maxPrice", maxPrice);
 
-        Product[] products = requireNonNull(restTemplate.getForObject(uriBuilder.toUriString(), Product[].class));
-        logger.info("Found " + products.length + " products: " + Arrays.deepToString(products));
+        ResponseEntity<Product[]> productsEntity = restTemplate.exchange(
+                uriBuilder.toUriString(), HttpMethod.GET, buildBearerEntity(), Product[].class);
+        Product[] products = requireNonNull(productsEntity.getBody());
+        LOGGER.info("Found " + products.length + " products: " + Arrays.deepToString(products));
         return List.of(products);
     }
 
     public Product createProduct(ProductDto productDto) {
-        return restTemplate.postForObject(API_INVENTORY_PRODUCTS, productDto, Product.class);
+        ResponseEntity<Product> productEntity = restTemplate.exchange(
+                API_INVENTORY_PRODUCTS, HttpMethod.POST, buildBearerEntity(productDto), Product.class);
+        return requireNonNull(productEntity.getBody());
+
     }
 
     public void deleteProductById(int id) {
-        restTemplate.delete(API_INVENTORY_PRODUCTS + "/" + id);
+        restTemplate.exchange(
+                API_INVENTORY_PRODUCTS + "/" + id, HttpMethod.DELETE, buildBearerEntity(), Object.class);
     }
 
 }

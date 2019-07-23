@@ -4,6 +4,7 @@ import com.opensymphony.xwork2.ActionContext;
 import com.opensymphony.xwork2.ActionSupport;
 import hska.iwi.eShopMaster.model.businessLogic.manager.UserManager;
 import hska.iwi.eShopMaster.model.businessLogic.manager.impl.UserManagerImpl;
+import org.springframework.web.client.HttpClientErrorException;
 
 import java.util.Map;
 
@@ -19,25 +20,22 @@ public class RegisterAction extends ActionSupport {
 
     @Override
     public String execute() {
-        // Return string:
-        String result = "input";
-
         UserManager userManager = new UserManagerImpl();
 
-        if (!userManager.doesUserAlreadyExist(this.username)) {
-            // save it to database
+        try {
             userManager.registerUser(this.username, this.firstname, this.lastname, this.password1, "user");
-            // User has been saved successfully to database:
-            addActionMessage("user registered, please login");
-            addActionError("user registered, please login");
-            Map<String, Object> session = ActionContext.getContext().getSession();
-            session.put("message", "user registered, please login");
-            result = "success";
-        } else {
+        } catch (HttpClientErrorException.Conflict ex) {
             addActionError(getText("error.username.alreadyInUse"));
+            return INPUT;
         }
 
-        return result;
+        addActionMessage("user registered, please login");
+        addActionError("user registered, please login");
+
+        Map<String, Object> session = ActionContext.getContext().getSession();
+        session.put("message", "user registered, please login");
+
+        return SUCCESS;
     }
 
     @Override
