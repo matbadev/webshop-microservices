@@ -100,13 +100,14 @@ public class InventoryController {
     }
 
     @SuppressWarnings("unused")
-    public List<Product> getProductsCache(String text, Double minPrice, Double maxPrice, OAuth2Authentication auth) {
-        return productCache.values()
+    public ResponseEntity<List<Product>> getProductsCache(String text, Double minPrice, Double maxPrice, OAuth2Authentication auth) {
+        List<Product> products = productCache.values()
                 .stream()
                 .filter(product -> (product.getName().contains(text) || product.getDetails().contains(text))
                         && product.getPrice() >= minPrice
                         && product.getPrice() <= maxPrice)
                 .collect(Collectors.toList());
+        return ResponseEntity.ok(products);
     }
 
     @HystrixCommand(fallbackMethod = "newProductCache", commandProperties = {
@@ -202,7 +203,7 @@ public class InventoryController {
     @RolesAllowed({"ROLE_ADMIN"})
     public ResponseEntity deleteProduct(@PathVariable Integer productId, OAuth2Authentication auth) {
         try {
-            restTemplate.exchange(categoriesUrl + "/" + productId, HttpMethod.DELETE, buildHttpEntity(auth), Void.TYPE);
+            restTemplate.exchange(productsUrl + "/" + productId, HttpMethod.DELETE, buildHttpEntity(auth), Object.class);
         } catch (HttpClientErrorException.NotFound ex) {
             return ResponseEntity.notFound().build();
         } catch (OAuth2Exception ex) {
@@ -292,7 +293,7 @@ public class InventoryController {
     @RolesAllowed({"ROLE_ADMIN"})
     public ResponseEntity deleteCategory(@PathVariable Integer categoryId, OAuth2Authentication auth) {
         try {
-            restTemplate.exchange(categoriesUrl + "/" + categoryId, HttpMethod.DELETE, buildHttpEntity(auth), Void.TYPE);
+            restTemplate.exchange(categoriesUrl + "/" + categoryId, HttpMethod.DELETE, buildHttpEntity(auth), Object.class);
         } catch (HttpClientErrorException.NotFound ex) {
             return ResponseEntity.notFound().build();
         } catch (OAuth2Exception ex) {
