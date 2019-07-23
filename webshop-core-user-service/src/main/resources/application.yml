@@ -23,3 +23,14 @@ eureka:
     leaseRenewalIntervalInSeconds: 5
     metadataMap:
       instanceId: "${spring.application.name}:${random.value}"
+
+security:
+  oauth2:
+    client:
+      client-id: webshop-webclient
+      client-secret: secret
+      access-token-uri: http://authorization-service:8080/oauth/token
+      user-authorization-uri: http://authorization-service:8080/oauth/authorize
+      scope: read write
+    resource:
+      user-info-uri: http://authorization-service:8080/me
