@@ -27,7 +27,6 @@ services:
       - discovery-service
       - authorization-service
       - product-db
-    restart: on-failure # Try again if database was not ready
 
   # Category Core Service + DB
   category-db: # Name and environment variables must match datasource configuration in application.yml
@@ -55,7 +54,6 @@ services:
       - discovery-service
       - authorization-service
       - category-db
-    restart: on-failure # Try again if database was not ready
 
   # User Core Service + DB
   user-db: # Name and environment variables must match datasource configuration in application.yml
@@ -83,7 +81,6 @@ services:
       - discovery-service
       - authorization-service
       - user-db
-    restart: on-failure # Try again if database was not ready
 
   # Inventory Composite Service
   inventory-service:
@@ -98,7 +95,6 @@ services:
       - authorization-service
       - product-service
       - category-service
-    restart: on-failure
 
   # Discovery Service
   discovery-service:
@@ -135,7 +131,6 @@ services:
       - authorization-service
       - user-service
       - inventory-service
-    restart: on-failure
 
   # Hystrix Dashboard Service
   #
