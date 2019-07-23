@@ -3,16 +3,19 @@ package de.hska.iwi.vslab.webshopcoreproductservice;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
+import javax.annotation.security.RolesAllowed;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
-@Controller
-@RequestMapping(path = "/")
+@RestController
+@RequestMapping("/")
 public class ProductController {
 
     private final ProductRepository productRepository;
@@ -23,12 +26,13 @@ public class ProductController {
     }
 
     @GetMapping(path = "/products")
-    public @ResponseBody
-    Iterable<Product> getProducts() {
+    @RolesAllowed({"ROLE_USER"})
+    public Iterable<Product> getProducts() {
         return productRepository.findAll();
     }
 
     @PostMapping(path = "/products")
+    @RolesAllowed({"ROLE_ADMIN"})
     public ResponseEntity<Product> newProduct(@RequestBody Product newProduct) {
         try {
             Product product = productRepository.save(newProduct);
@@ -38,17 +42,16 @@ public class ProductController {
         }
     }
 
-    @GetMapping(path = "/products/{productId}")
+    @GetMapping("/products/{productId}")
+    @RolesAllowed({"ROLE_USER"})
     public ResponseEntity<Product> getProductById(@PathVariable int productId) {
         Optional<Product> productOptional = productRepository.findById(productId);
-        if (productOptional.isPresent()) {
-            return ResponseEntity.ok(productOptional.get());
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+        return productOptional.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
-    @DeleteMapping(path = "/products/{productId}")
+    @DeleteMapping("/products/{productId}")
+    @RolesAllowed({"ROLE_ADMIN"})
     public ResponseEntity<Product> deleteProductById(@PathVariable int productId) {
         if (productRepository.findById(productId).isPresent()) {
             productRepository.deleteById(productId);
@@ -57,4 +60,5 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
     }
+
 }
