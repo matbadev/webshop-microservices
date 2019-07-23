@@ -1,21 +1,22 @@
-package de.hska.iwi.vslab.webshopcompositeinventoryservice;
+package de.hska.iwi.vslab.webshopcompositeinventoryservice.model;
 
-public class ProductCore {
+public class Product {
 
     private int id;
     private String name;
     private double price;
     private String details;
-    private int categoryId;
+    private Category category;
 
-    public ProductCore() {
+    public Product() {
     }
 
-    public ProductCore(String name, double price, String details, int categoryId) {
+    public Product(int id, String name, double price, String details, Category category) {
+        this.id = id;
         this.name = name;
         this.price = price;
         this.details = details;
-        this.categoryId = categoryId;
+        this.category = category;
     }
 
     public int getId() {
@@ -50,12 +51,12 @@ public class ProductCore {
         this.details = details;
     }
 
-    public int getCategoryId() {
-        return categoryId;
+    public Category getCategory() {
+        return category;
     }
 
-    public void setCategoryId(int categoryId) {
-        this.categoryId = categoryId;
+    public void setCategory(Category category) {
+        this.category = category;
     }
 
 }

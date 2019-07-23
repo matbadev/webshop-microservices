@@ -1,4 +1,4 @@
-package de.hska.iwi.vslab.webshopcompositeinventoryservice;
+package de.hska.iwi.vslab.webshopcompositeinventoryservice.model;
 
 public class ProductDto {
 
