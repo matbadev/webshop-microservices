@@ -2,31 +2,39 @@ package de.hska.iwi.vslab.webshopcorecategoryservice.category;
 
 import de.hska.iwi.vslab.webshopcorecategoryservice.category.CategoryDto.NewCategoryDto;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
+import javax.annotation.security.RolesAllowed;
 import java.util.Optional;
 
-@Controller
 @RestController
-@RequestMapping(path = "/categories")
+@RequestMapping("/")
 public class CategoryController {
 
-    @Autowired
-    private CategoryRepository categoryRepo;
+    private final CategoryRepository categoryRepo;
 
-    @GetMapping
-    public ResponseEntity<Iterable<Category>> getCategories() {
-        Iterable<Category> allCategories = categoryRepo.findAll();
-        return new ResponseEntity<>(allCategories, HttpStatus.OK);
+    @Autowired
+    public CategoryController(CategoryRepository categoryRepo) {
+        this.categoryRepo = categoryRepo;
     }
 
-    @PostMapping
-    public ResponseEntity<Category> addCategory(@RequestBody NewCategoryDto category){
+    @GetMapping("/categories")
+    @RolesAllowed({"ROLE_USER"})
+    public Iterable<Category> getCategories() {
+        return categoryRepo.findAll();
+    }
+
+    @PostMapping("/categories")
+    @RolesAllowed({"ROLE_ADMIN"})
+    public ResponseEntity<Category> addCategory(@RequestBody NewCategoryDto category) {
         try {
             Category newCategory = categoryRepo.save(new Category(category.getName()));
             return ResponseEntity.status(HttpStatus.CREATED).body(newCategory);
@@ -35,21 +43,17 @@ public class CategoryController {
         }
     }
 
-    @GetMapping(path = "/{categoryId}")
+    @GetMapping("/categories/{categoryId}")
+    @RolesAllowed({"ROLE_USER"})
     public ResponseEntity<Category> getCategory(@PathVariable Long categoryId) {
-
         Optional<Category> category = categoryRepo.findById(categoryId);
-
-        if (category.isPresent()) {
-            return ResponseEntity.ok().body(category.get());
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        }
+        return category.map((value) -> ResponseEntity.ok().body(value))
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
     }
 
-    @DeleteMapping(path = "/{categoryId}")
-    public ResponseEntity<Void> deleteCategory(@PathVariable Long categoryId) {
-
+    @DeleteMapping("/categories/{categoryId}")
+    @RolesAllowed({"ROLE_ADMIN"})
+    public ResponseEntity deleteCategory(@PathVariable Long categoryId) {
         try {
             categoryRepo.deleteById(categoryId);
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
@@ -57,4 +61,5 @@ public class CategoryController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
+
 }
