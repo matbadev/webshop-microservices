@@ -14,5 +14,19 @@ ribbon:
 
 zuul:
   ignoredServices: '*'
+  sensitiveHeaders: Cookie,Set-Cookie
   routes:
+    authorization-service: /auth/**
+    user-service: /user-api/**
     inventory-service: /inventory-api/**
+
+security:
+  oauth2:
+    client:
+      client-id: webshop-webclient
+      client-secret: secret
+      access-token-uri: http://authorization-service:8080/oauth/token
+      user-authorization-uri: http://authorization-service:8080/oauth/authorize
+      scope: read write
+    resource:
+      user-info-uri: http://authorization-service:8080/me
