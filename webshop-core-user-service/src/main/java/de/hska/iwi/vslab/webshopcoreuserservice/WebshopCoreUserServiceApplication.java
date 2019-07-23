@@ -26,8 +26,12 @@ public class WebshopCoreUserServiceApplication {
         @Override
         public void configure(HttpSecurity http) throws Exception {
             http
+                    .anonymous()
+                    .and()
                     .requestMatcher(new RequestHeaderRequestMatcher("Authorization"))
-                    .authorizeRequests().anyRequest().fullyAuthenticated();
+                    .authorizeRequests()
+                    .antMatchers("/users").permitAll()
+                    .antMatchers("/debug").fullyAuthenticated();
         }
 
     }
