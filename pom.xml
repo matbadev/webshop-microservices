@@ -10,6 +10,7 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>webshop-authorization-service</module>
         <module>webshop-composite-inventory-service</module>
         <module>webshop-core-category-service</module>
         <module>webshop-core-product-service</module>

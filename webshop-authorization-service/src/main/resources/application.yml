@@ -1,0 +1,25 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: authorization-service
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+  datasource:
+    url: jdbc:mysql://user-db:3306/users?serverTimezone=UTC&useLegacyDatetimeCode=false&useSSL=false
+    username: usercore
+    password: usercore
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://discovery-service:8080/eureka/
+  instance:
+    preferIpAddress: true
+    leaseRenewalIntervalInSeconds: 5
+    metadataMap:
+      instanceId: "${spring.application.name}:${random.value}"

@@ -25,6 +25,7 @@ services:
       - webshop-network
     depends_on:
       - discovery-service
+      - authorization-service
       - product-db
     restart: on-failure # Try again if database was not ready
 
@@ -52,6 +53,7 @@ services:
       - webshop-network
     depends_on:
       - discovery-service
+      - authorization-service
       - category-db
     restart: on-failure # Try again if database was not ready
 
@@ -79,6 +81,7 @@ services:
       - webshop-network
     depends_on:
       - discovery-service
+      - authorization-service
       - user-db
     restart: on-failure # Try again if database was not ready
 
@@ -92,6 +95,7 @@ services:
       - webshop-network
     depends_on:
       - discovery-service
+      - authorization-service
       - product-service
       - category-service
     restart: on-failure
@@ -104,7 +108,18 @@ services:
       - "9254:8080"
     networks:
       - webshop-network
-    restart: on-failure
+
+  # Authorization Service
+  authorization-service:
+    build:
+      context: ./webshop-authorization-service
+    ports:
+      - "9257:8080"
+    networks:
+      - webshop-network
+    depends_on:
+      - discovery-service
+      - user-db
 
   # Zuul-Edge Service
   edge-service:
@@ -116,6 +131,8 @@ services:
       - webshop-network
       - client-network
     depends_on:
+      - discovery-service
+      - authorization-service
       - user-service
       - inventory-service
     restart: on-failure
