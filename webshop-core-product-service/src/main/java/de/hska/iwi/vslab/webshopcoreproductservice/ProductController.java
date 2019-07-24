@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.security.RolesAllowed;
+import javax.validation.Valid;
 import java.util.Optional;
 
 @RestController
@@ -33,7 +34,7 @@ public class ProductController {
 
     @PostMapping(path = "/products")
     @RolesAllowed({"ROLE_ADMIN"})
-    public ResponseEntity<Product> newProduct(@RequestBody Product newProduct) {
+    public ResponseEntity<Product> newProduct(@RequestBody @Valid Product newProduct) {
         try {
             Product product = productRepository.save(newProduct);
             return ResponseEntity.status(HttpStatus.CREATED).body(product);

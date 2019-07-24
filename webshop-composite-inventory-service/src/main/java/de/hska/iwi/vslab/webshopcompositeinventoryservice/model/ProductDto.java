@@ -1,10 +1,20 @@
 package de.hska.iwi.vslab.webshopcompositeinventoryservice.model;
 
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Positive;
+
 public class ProductDto {
 
+    @NotEmpty
     private String name;
+
+    @Positive
     private double price;
+
+    @NotEmpty
     private String details;
+
+    @NotEmpty
     private String category;
 
     public ProductDto() {

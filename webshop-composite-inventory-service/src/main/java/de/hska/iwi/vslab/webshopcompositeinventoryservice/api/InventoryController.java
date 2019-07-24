@@ -29,6 +29,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.security.RolesAllowed;
+import javax.validation.Valid;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -115,7 +116,7 @@ public class InventoryController {
     })
     @PostMapping(path = "/products")
     @RolesAllowed({"ROLE_ADMIN"})
-    public ResponseEntity<Product> newProduct(@RequestBody ProductDto newProductDto, OAuth2Authentication auth) {
+    public ResponseEntity<Product> newProduct(@RequestBody @Valid ProductDto newProductDto, OAuth2Authentication auth) {
         ResponseEntity<Category> categoryEntity = getOrCreateCategory(newProductDto.getCategory(), auth);
         if (!isSuccessful(categoryEntity)) {
             return ResponseEntity.status(categoryEntity.getStatusCode()).build();
@@ -173,16 +174,14 @@ public class InventoryController {
 
         ResponseEntity<Category> categoryEntity = getCategory(productCore.getCategoryId(), auth);
         HttpStatus categoryStatus = categoryEntity.getStatusCode();
-        if (categoryStatus != HttpStatus.OK) {
-            if (categoryStatus == HttpStatus.NOT_FOUND) {
-                return ResponseEntity.notFound().build();
-            } else if (categoryStatus == HttpStatus.FORBIDDEN) {
+        if (!isSuccessful(categoryEntity) && categoryStatus != HttpStatus.NOT_FOUND) {
+            if (categoryStatus == HttpStatus.FORBIDDEN) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
             } else {
                 throw new RuntimeException();
             }
         }
-        Category category = categoryEntity.getBody();
+        Category category = categoryEntity.getBody(); // Might me null
 
         Product product = new Product(productCore.getId(), productCore.getName(), productCore.getPrice(), productCore.getDetails(), category);
         productCache.putIfAbsent(productId, product);
@@ -245,7 +244,7 @@ public class InventoryController {
     })
     @PostMapping(path = "/categories")
     @RolesAllowed({"ROLE_ADMIN"})
-    public ResponseEntity<Category> createCategory(@RequestBody CategoryDto newCategory, OAuth2Authentication auth) {
+    public ResponseEntity<Category> createCategory(@RequestBody @Valid CategoryDto newCategory, OAuth2Authentication auth) {
         try {
             return restTemplate.postForEntity(categoriesUrl, buildHttpEntity(auth, newCategory), Category.class);
         } catch (HttpClientErrorException.BadRequest ex) {

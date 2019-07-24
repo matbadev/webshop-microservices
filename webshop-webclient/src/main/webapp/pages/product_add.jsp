@@ -66,7 +66,7 @@
 
                 <div class="form-group">
                     <label>Beschreibung*:</label>
-                    <s:textarea name="details" cssClass="form-control" cols="15" rows="3"/>
+                    <s:textarea name="details" cssClass="form-control" required="true" cols="15" rows="3"/>
                 </div>
 
                 <s:submit method="execute" key="product.submit" cssClass="btn btn-success"/>

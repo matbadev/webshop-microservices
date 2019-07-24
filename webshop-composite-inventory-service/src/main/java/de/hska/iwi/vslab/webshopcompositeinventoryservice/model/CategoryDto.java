@@ -1,7 +1,10 @@
 package de.hska.iwi.vslab.webshopcompositeinventoryservice.model;
 
+import javax.validation.constraints.NotEmpty;
+
 public class CategoryDto {
 
+    @NotEmpty
     private String name;
 
     public CategoryDto() {

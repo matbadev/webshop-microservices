@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.security.RolesAllowed;
+import javax.validation.Valid;
 import java.util.Optional;
 
 @RestController
@@ -34,7 +35,7 @@ public class CategoryController {
 
     @PostMapping("/categories")
     @RolesAllowed({"ROLE_ADMIN"})
-    public ResponseEntity<Category> addCategory(@RequestBody NewCategoryDto category) {
+    public ResponseEntity<Category> addCategory(@RequestBody @Valid NewCategoryDto category) {
         try {
             Category newCategory = categoryRepo.save(new Category(category.getName()));
             return ResponseEntity.status(HttpStatus.CREATED).body(newCategory);
