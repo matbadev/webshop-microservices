@@ -9,7 +9,7 @@ import org.springframework.security.config.annotation.method.configuration.Globa
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
-import org.springframework.security.web.util.matcher.RequestHeaderRequestMatcher;
+import org.springframework.security.oauth2.provider.error.OAuth2AccessDeniedHandler;
 
 @SpringBootApplication
 @EnableDiscoveryClient
@@ -26,8 +26,10 @@ public class WebshopCoreCategoryServiceApplication {
         @Override
         public void configure(HttpSecurity http) throws Exception {
             http
-                    .requestMatcher(new RequestHeaderRequestMatcher("Authorization"))
-                    .authorizeRequests().anyRequest().fullyAuthenticated();
+                    .authorizeRequests()
+                    /**/.anyRequest().authenticated()
+                    .and()
+                    /**/.exceptionHandling().accessDeniedHandler(new OAuth2AccessDeniedHandler());
         }
 
     }
