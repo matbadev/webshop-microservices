@@ -1,4 +1,4 @@
-# Webshop using Microservices
+# Webshop built with Netflix Microservice Stack
 
 This repository contains the sources of backend and frontend of a webshop created during the lecture *Distributed Systems* at [Karlsruhe University of Applied Sciences](https://www.hs-karlsruhe.de/). The authors are:
 
@@ -31,5 +31,5 @@ The project can be built and executed by using the project's [docker-compose.yml
 - `docker-compose up -d edge-service`: Start the edge service including all the backend microservices except the Hystrix Dashboard. The command will not block the terminal as option `-d` (detached) is specified. This command also builds the corresponding Docker containers if they are not already built.
 - `docker-compose up -d webclient`: Start the webapp. This does not automatically start the backend services.
 - `docker-compose up -d --build edge-service`: (Re-)build the backend microservices if they have changed and start them.
-- `docker-compose logs -f`: Show the logs of all running microservices blocking the terminal.
+- `docker-compose logs -f`: Show the logs of all running microservices. This command will block the terminal and show new logs once they are received as the option `-f` (follow) is specified.
 - `docker-compose down`: Stop all running microservices.
