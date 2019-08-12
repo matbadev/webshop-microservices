@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>de.hska.iwi.vslab</groupId>
-    <artifactId>webshop-modules</artifactId>
+    <artifactId>webshop-microservices</artifactId>
     <version>1.0.0</version>
 
     <packaging>pom</packaging>
