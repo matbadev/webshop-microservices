@@ -2,7 +2,7 @@
 
 This repository contains the sources of backend and frontend of a webshop created during the lecture *Distributed Systems* at [Karlsruhe University of Applied Sciences](https://www.hs-karlsruhe.de/). The authors are:
 
-- Matthias Bäuerle ([matthias-baeuerle](https://github.com/matthias-baeuerle))
+- Matthias Bäuerle ([matbadev](https://github.com/matbadev))
 - Waldemar Felde ([YetiNerd](https://github.com/YetiNerd))
 - Matthieu Laqua ([madjoel](https://github.com/madjoel))
 
